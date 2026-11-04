@@ -1,14 +1,11 @@
 #ifndef BUS_MANAGEMENT_H
 #define BUS_MANAGEMENT_H
-
 #include "common.h"
 #include "person.h"
-
 // MEMBER 1 : BUS & VEHICLE MANAGEMENT
 class Driver : public Person {
     string licenseNumber;
     int busId;
-
 public:
     Driver() : Person(), licenseNumber(""), busId(-1) {}
     
@@ -26,10 +23,8 @@ public:
     void showDetails() const override { 
         cout << "  Driver " << name << " (" << licenseNumber << ")\n"; 
     }
-};
-
+}; 
 enum BusStatus { AVAILABLE, RUNNING, MAINTENANCE };
-
 string statusToText(int status) {
     if (status == AVAILABLE) {
         return "Available";
@@ -39,7 +34,6 @@ string statusToText(int status) {
     }
     return "Maintenance";
 }
-
 class Bus {
     int busId, totalSeats, seatsTaken, status, driverId, routeLength;
     string busNumber;
