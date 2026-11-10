@@ -1032,7 +1032,7 @@ public:
     }
 
     void assignRouteAction() {
-        Bus *bus = busManager.findBusById(askNumber("Bus ID: "));
+        Bus*bus = busManager.findBusById(askNumber("Bus ID: "));
         if (bus == nullptr) {
             cout << "  Bus not found.\n";
             return;
