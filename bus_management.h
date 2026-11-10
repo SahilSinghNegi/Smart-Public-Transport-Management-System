@@ -261,6 +261,4 @@ public:
              << driverName << "\n    route: " << routeText << "\n";
     }
 };
-
-
 #endif
