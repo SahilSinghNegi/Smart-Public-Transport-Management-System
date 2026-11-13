@@ -256,7 +256,6 @@ public:
     int getRouteLength() const { 
         return routeLength; 
     }
-    
     int getRouteStop(int position) const { 
         return routeStops[position]; 
     }
