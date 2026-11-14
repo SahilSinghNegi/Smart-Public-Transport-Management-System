@@ -516,6 +516,18 @@ public:
         roadMinutes[a][b] = roadMinutes[b][a] = minutes;
         return true;
     }
+     bool removeRoad(const string &nameA, const string &nameB) {
+        int a = findStop(nameA);
+        int b = findStop(nameB);
+
+        if (a == -1 || b == -1 || a == b) {
+            return false;
+        }
+
+        if (roadKm[a][b] == 0) {
+            return false;
+        }
+         
     int findBestRoute(int start, int end, int path[], int &pathLength, bool useTime) const {
         if (start < 0 || end < 0) {
             return -1;
