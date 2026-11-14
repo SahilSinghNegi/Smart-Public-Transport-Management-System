@@ -30,8 +30,6 @@ passenger_boarding.h ->	Passengers and queues
 
 schedule_tickets.h -> Timetable and tickets
 
-transport_system.h -> The menu that joins everything
-
 common.h, common.cpp, person.h ->	Shared helpers
 
-main.cpp -> Starts the program
+main.cpp -> Starts the program and joins everything
