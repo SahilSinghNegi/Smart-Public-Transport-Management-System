@@ -503,6 +503,19 @@ public:
         return true;
     }
 
+     bool updateRoad(const string &nameA, const string &nameB, int km, int minutes) {
+        int a = findStop(nameA);
+        int b = findStop(nameB);
+        if (a == -1 || b == -1 || a == b || km <= 0 || minutes <= 0) {
+            return false;
+        }
+        if (roadKm[a][b] == 0) {
+            return false;
+        }
+        roadKm[a][b] = roadKm[b][a] = km;
+        roadMinutes[a][b] = roadMinutes[b][a] = minutes;
+        return true;
+    }
     int findBestRoute(int start, int end, int path[], int &pathLength, bool useTime) const {
         if (start < 0 || end < 0) {
             return -1;
