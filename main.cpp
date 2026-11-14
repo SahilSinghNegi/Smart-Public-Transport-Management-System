@@ -527,6 +527,11 @@ public:
         if (roadKm[a][b] == 0) {
             return false;
         }
+        roadKm[a][b] = roadKm[b][a] = 0;
+        roadMinutes[a][b] = roadMinutes[b][a] = 0;
+
+        return true;
+    }
          
     int findBestRoute(int start, int end, int path[], int &pathLength, bool useTime) const {
         if (start < 0 || end < 0) {
