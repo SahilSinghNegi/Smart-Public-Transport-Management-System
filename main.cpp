@@ -554,6 +554,26 @@ public:
             cout << "  No connected roads.\n";
         }
     }
+     int getDirectDistance(const string &nameA, const string &nameB) const {
+        int a = findStop(nameA);
+        int b = findStop(nameB);
+
+        if (a == -1 || b == -1 || a == b || roadKm[a][b] == 0) {
+            return -1;
+        }
+
+        return roadKm[a][b];
+    }
+    int getDirectTime(const string &nameA, const string &nameB) const {
+        int a = findStop(nameA);
+        int b = findStop(nameB);
+
+        if (a == -1 || b == -1 || a == b || roadMinutes[a][b] == 0) {
+            return -1;
+        }
+
+        return roadMinutes[a][b];
+    }
      bool removeRoad(const string &nameA, const string &nameB) {
         int a = findStop(nameA);
         int b = findStop(nameB);
