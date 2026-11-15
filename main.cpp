@@ -19,6 +19,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -427,7 +428,8 @@ public:
         return busCount; 
     }
 
-    void showBus(const Bus &bus, const string &routeText) {
+    void showBus(const Bus &bus, const string &routeText)
+    {
         Driver *driver = findDriver(bus.getDriverId());
         string driverName = "none";
         
@@ -439,6 +441,89 @@ public:
              << bus.getSeatsTaken() << "/" << bus.getTotalSeats() << " | driver: "
              << driverName << "\n    route: " << routeText << "\n";
     }
+
+    void saveBuses() const
+    {
+        ofstream file("buses.txt");
+
+        if (!file)
+        {
+            cout << "Unable to save buses.\n";
+            return;
+        }
+
+        for (int i = 0; i < busCount; i++) 
+        {
+            file << buses[i].getId() << ","
+                << buses[i].getNumber() << ","
+                << buses[i].getTotalSeats() << ","
+                << buses[i].getStatus() << ","
+                << buses[i].getDriverId() << ","
+                << buses[i].getRouteLength();
+
+        for (int j = 0; j < buses[i].getRouteLength(); j++)
+        {
+            file << "," << buses[i].getRouteStop(j);
+        }
+
+        file << "\n";
+        }
+    } 
+    void loadBuses()
+{
+    ifstream file("buses.txt");
+
+    if (!file)
+    {
+        return;
+    }
+
+    string line;
+
+    while (getline(file, line))
+    {
+        stringstream ss(line);
+
+        int id, seats, status, driverId, routeLength;
+        string number;
+        char comma;
+
+        ss >> id >> comma;
+        getline(ss, number, ',');
+
+        ss >> seats >> comma
+           >> status >> comma
+           >> driverId >> comma
+           >> routeLength;
+
+        if (busCount == Max_Buses ||
+            routeLength < 0 || routeLength > Max_Route ||
+            id != busCount + 1)
+        {
+            continue;
+        }
+
+        int stops[Max_Route];
+
+        for (int i = 0; i < routeLength; i++)
+        {
+            ss >> comma >> stops[i];
+        }
+
+        int newId = addBus(number, seats);
+
+        if (newId == -1 || newId == -2)
+        {
+            continue;
+        }
+
+        Bus *bus = findBusById(newId);
+
+        bus->setStatus(status);
+        bus->setDriver(driverId);
+        bus->setRoute(stops, routeLength);
+    }
+    }  
 };
 
 // MEMBER 2 : ROUTE & NAVIGATION MANAGEMENT
