@@ -1375,6 +1375,21 @@ public:
         string name = askText("Enter stop name: ");
         roadMap.showConnections(name);
     }
+    void showDirectRoadAction() {
+        string a = askText("First stop: ");
+        string b = askText("Second stop: ");
+
+        int km = roadMap.getDirectDistance(a, b);
+        int minutes = roadMap.getDirectTime(a, b);
+
+        if (km == -1) {
+            cout << "  No direct road exists between these stops.\n";
+            return;
+        }
+    void showRoadCountAction() {
+        cout << "  Total stops: " << roadMap.getStopCount() << "\n";
+        cout << "  Total roads: " << roadMap.countRoads() << "\n";
+    }
     void findRouteAction() {
         int start = roadMap.findStop(askText("From: "));
         int end = roadMap.findStop(askText("To: "));
@@ -1626,7 +1641,10 @@ void showMenu() {
          << " 10. Register passenger 11. Join boarding queue 12. Board passengers\n"
          << " SCHEDULE & TICKETS (Member 4) \n"
          << " 13. Add trip           14. Show timetable     15. Show tickets\n"
-         << " 16. Save tickets to file                       0. Exit\n"
+         << " 16. Save tickets to file                    ROUTE MANAGEMENT - ADDITIONAL FEATURES
+         17. Update road         19. Show stop connections
+         18. Remove road         20. Direct road details
+         21. Count total roads            0. Exit\n"
          << endl;
 }
 
@@ -1689,6 +1707,21 @@ int main() {
                 break;
             case 16: 
                 transportsystem.saveTicketsAction(); 
+                break;
+             case 17:
+                transportsystem.updateRoadAction();
+                break;
+            case 18:
+                transportsystem.removeRoadAction();
+                break;
+            case 19:
+                transportsystem.showConnectionsAction();
+                break;
+            case 20:
+                transportsystem.showDirectRoadAction();
+                break;
+            case 21:
+                transportsystem.showRoadCountAction();
                 break;
             case 0: 
                 cout << "\n"; 
