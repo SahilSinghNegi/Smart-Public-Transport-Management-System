@@ -1033,8 +1033,6 @@ public:
     isWaiting[passenger.getId()][busId] = true;
     return peopleWaiting(busId);
 }
-        return peopleWaiting(busId);
-    }
 
    BoardingRequest callNextPassenger(int busId) {
     WaitingList &list = waitingLists[busId - 1];
@@ -1050,6 +1048,7 @@ public:
     isWaiting[request.passengerId][busId] = false;
     return request;
 }
+};
 
 // MEMBER 4 : SCHEDULE, TICKET & SYSTEM INTEGRATION
 struct Trip {
