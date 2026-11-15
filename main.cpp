@@ -1318,6 +1318,85 @@ public:
         tickets[ticketCount] = ticket;
         return ticketCount++;
     }
+    void saveTickets() const
+    {
+        ofstream file("tickets.txt");
+
+        if(!file)
+        {
+            cout << "Unable to save tickets.\n";
+            return;
+        }
+
+        for(int i = 0; i < ticketCount; i++)
+        {
+            file << tickets[i].ticketId << ","
+                 << tickets[i].passengerId << ","
+                << tickets[i].busId << ","
+                << tickets[i].seatNumber << ","
+                << tickets[i].fromStop << ","
+                << tickets[i].toStop << ","
+                << tickets[i].km << ","
+                << tickets[i].farePaise << "\n";
+        }
+    }
+
+    void loadTickets(int passengerCount, int busCount, int stopCount)
+    {
+        ifstream file("tickets.txt");
+
+        if(!file)
+        return;
+
+        string line;
+
+        while(getline(file, line))
+        {
+            stringstream ss(line);
+
+            int id, passengerId, busId, seat;
+            int from, to, km, fare;
+            char c1, c2, c3, c4, c5, c6, c7;
+
+            if(!(ss >> id >> c1 >> passengerId >> c2
+                    >> busId >> c3 >> seat >> c4
+                    >> from >> c5 >> to >> c6
+                    >> km >> c7 >> fare))
+                continue;
+
+            if(c1 != ',' || c2 != ',' || c3 != ',' ||
+            c4 != ',' || c5 != ',' || c6 != ',' || c7 != ',')
+                continue;
+
+            if(ticketCount == Max_Tickets ||
+                id < 1001 ||
+                passengerId < 1 || passengerId > passengerCount ||
+                busId < 1 || busId > busCount ||
+                seat <= 0 ||
+                from < 0 || from >= stopCount ||
+                to < 0 || to >= stopCount ||
+                from == to || km <= 0 || fare < 0)
+                continue;
+
+            bool duplicate = false;
+            for (int i = 0; i < ticketCount; i++)
+            {
+                if (tickets[i].ticketId == id)
+                    duplicate = true;
+            }
+
+            if (duplicate)
+                continue;
+
+            tickets[ticketCount++] = {
+                id, passengerId, busId, seat,
+                from, to, km, fare
+        };
+
+        if(id >= nextTicketId)
+            nextTicketId = id + 1;
+        }
+}
 };
 
 class TransportSystem {
