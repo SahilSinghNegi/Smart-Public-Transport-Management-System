@@ -1387,6 +1387,10 @@ public:
             cout << "  No direct road exists between these stops.\n";
             return;
         }
+    void showRoadCountAction() {
+        cout << "  Total stops: " << roadMap.getStopCount() << "\n";
+        cout << "  Total roads: " << roadMap.countRoads() << "\n";
+    }
     void findRouteAction() {
         int start = roadMap.findStop(askText("From: "));
         int end = roadMap.findStop(askText("To: "));
