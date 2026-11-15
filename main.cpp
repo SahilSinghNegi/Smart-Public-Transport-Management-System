@@ -1376,6 +1376,17 @@ public:
         string name = askText("Enter stop name: ");
         roadMap.showConnections(name);
     }
+    void showDirectRoadAction() {
+        string a = askText("First stop: ");
+        string b = askText("Second stop: ");
+
+        int km = roadMap.getDirectDistance(a, b);
+        int minutes = roadMap.getDirectTime(a, b);
+
+        if (km == -1) {
+            cout << "  No direct road exists between these stops.\n";
+            return;
+        }
     void findRouteAction() {
         int start = roadMap.findStop(askText("From: "));
         int end = roadMap.findStop(askText("To: "));
