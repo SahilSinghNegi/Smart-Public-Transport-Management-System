@@ -197,6 +197,11 @@ public:
     int getBusId() const { 
         return busId; 
     }
+
+    string getLicenseNumber() const
+    {
+        return licenseNumber;
+    }
     
     void showDetails() const override { 
         cout << "  Driver " << name << " (" << licenseNumber << ")\n"; 
@@ -465,12 +470,11 @@ public:
         {
             file << "," << buses[i].getRouteStop(j);
         }
-
         file << "\n";
         }
     } 
     void loadBuses()
-{
+    {
     ifstream file("buses.txt");
 
     if (!file)
@@ -523,7 +527,71 @@ public:
         bus->setDriver(driverId);
         bus->setRoute(stops, routeLength);
     }
-    }  
+    }
+    void saveDrivers() const
+    {
+        ofstream file("drivers.txt");
+
+        if (!file)
+        {
+            cout << "Unable to save drivers.\n";
+            return;
+        }
+
+        for (int i = 0; i < driverCount; i++)
+        {
+            file << drivers[i].getId() << ","
+                 << drivers[i].getName() << ","
+                << drivers[i].getLicenseNumber() << ","
+                << drivers[i].getBusId() << "\n";
+        }
+    }
+    void loadDrivers()
+    {
+        ifstream file("drivers.txt");
+
+        if (!file)
+        {
+            return;
+        }
+
+        string line;
+
+        while (getline(file, line))
+        {
+            stringstream ss(line);
+
+            int id, busId;
+            string driverName, license;
+
+            getline(ss, line, ',');
+
+            if (!textToNumber(line, id))
+            {
+                continue;
+            }
+
+            getline(ss, driverName, ',');
+            getline(ss, license, ',');
+
+            if (!(ss >> busId))
+            {
+                continue;
+            }
+
+            if (driverCount == Max_Drivers || id != driverCount + 1)
+            {   
+                continue;
+            }
+
+            int newId = addDriver(driverName, license);
+
+            if (newId != -1)
+            {
+                drivers[newId - 1].setBus(busId);
+            }
+        }   
+    }
 };
 
 // MEMBER 2 : ROUTE & NAVIGATION MANAGEMENT
