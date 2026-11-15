@@ -400,16 +400,21 @@ public:
         plateTable.put(number, busCount);
         return busCount;
     }
-
-    int addDriver(const string &driverName, const string &license) {
-        if (driverCount == Max_Drivers) {
+ int addDriver(const string &driverName, const string &license) 
+    for (int i = 0; i < driverCount; i++) {
+        if (drivers[i].getLicenseNumber() == license) {
             return -1;
         }
-        drivers[driverCount] = Driver(driverCount + 1, driverName, license);
-        driverCount++;
-        return driverCount;
     }
 
+    if (driverCount == Max_Drivers) {
+        return -1;
+    }
+
+    drivers[driverCount] = Driver(driverCount + 1, driverName, license);
+    driverCount++;
+    return driverCount;
+}
     bool assignDriver(int driverId, int busId) {
         Driver *driver = findDriver(driverId);
         Bus *bus = findBusById(busId);
