@@ -1702,6 +1702,21 @@ int main() {
             case 16: 
                 transportsystem.saveTicketsAction(); 
                 break;
+             case 17:
+                transportsystem.updateRoadAction();
+                break;
+            case 18:
+                transportsystem.removeRoadAction();
+                break;
+            case 19:
+                transportsystem.showConnectionsAction();
+                break;
+            case 20:
+                transportsystem.showDirectRoadAction();
+                break;
+            case 21:
+                transportsystem.showRoadCountAction();
+                break;
             case 0: 
                 cout << "\n"; 
                 return 0;
