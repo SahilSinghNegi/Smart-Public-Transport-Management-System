@@ -516,6 +516,18 @@ public:
         roadMinutes[a][b] = roadMinutes[b][a] = minutes;
         return true;
     }
+      int countRoads() const {
+        int count = 0;
+
+        for (int i = 0; i < stopCount; i++) {
+            for (int j = i + 1; j < stopCount; j++) {
+                if (roadKm[i][j] > 0) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
      bool removeRoad(const string &nameA, const string &nameB) {
         int a = findStop(nameA);
         int b = findStop(nameB);
