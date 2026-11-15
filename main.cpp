@@ -916,6 +916,16 @@ public:
     
     Passenger(int passengerId, const string &passengerName, int passengerAge, bool priority)
         : Person(passengerId, passengerName), age(passengerAge), wantsPriority(priority) {}
+        
+        int getAge() const
+    {
+        return age;
+    }
+
+    bool hasPriority() const
+    {
+        return wantsPriority;
+    }
     
     bool isChildOrSenior() const { 
         return age <= 12 || age >= 60; 
@@ -1057,6 +1067,59 @@ public:
         return ++passengerCount;
     }
 
+    void savePassengers() const
+    {
+        ofstream file("passengers.txt");
+
+        if(!file)
+        {
+            cout << "Unable to save passengers.\n";
+            return;
+        }
+
+        for(int i = 0; i < passengerCount; i++)
+        {
+            file << passengers[i].getId() << ","
+                 << passengers[i].getName() << ","
+                << passengers[i].getAge() << ","
+                << passengers[i].hasPriority() << "\n";
+        }
+    }
+
+    void loadPassengers()
+    {
+        ifstream file("passengers.txt");
+
+        if (!file)
+            return;
+        string line;
+        while(getline(file, line))
+        {
+            stringstream ss(line);
+            string idText, passengerName, ageText, priorityText;
+            int id, age, priority;
+            if (!getline(ss, idText, ',') ||
+                !getline(ss, passengerName, ',') ||
+                !getline(ss, ageText, ',') ||
+                !getline(ss, priorityText))
+                continue;
+
+            if(!textToNumber(idText, id) ||
+                !textToNumber(ageText, age) ||
+                !textToNumber(priorityText, priority))
+                continue;
+
+            if(id != passengerCount + 1 ||
+                passengerCount == Max_Passengers ||
+                passengerName.empty() ||
+                age <= 0 || age > 120 ||
+                (priority != 0 && priority != 1))
+                continue;
+
+            registerPassenger(passengerName, age, priority == 1);
+        }
+    }
+
     Passenger *findPassenger(int id) {
         if (id < 1 || id > passengerCount) {
             return nullptr;
@@ -1158,6 +1221,55 @@ public:
         trips[tripCount].tripMinutes = tripMinutes;
         tripCount++;
         return true;
+    }
+
+    void saveTimetable() const
+    {
+        ofstream file("timetable.txt");
+
+        if(!file)
+        {
+            cout << "Unable to save timetable.\n";
+            return;
+        }
+
+        for(int i = 0; i < tripCount; i++)
+        {
+            file << trips[i].busId << ","
+                << trips[i].departMinutes << ","
+                << trips[i].tripMinutes << "\n";
+        }
+    }
+
+    void loadTimetable()
+    {
+        ifstream file("timetable.txt");
+
+        if(!file)
+            return;
+
+        int busId, departure, duration;
+
+        while(file >> busId)
+        {
+            char comma1, comma2;
+
+            if(!(file >> comma1 >> departure
+                    >> comma2 >> duration))
+                break;
+
+            if(comma1 != ',' || comma2 != ',' ||
+                busId <= 0 ||
+                departure < 0 || departure >= 1440 ||
+                duration <= 0 ||
+                tripCount == Max_Trips)
+                continue;
+
+            if(findClash(busId, departure, duration) == -1)
+            {
+                addTrip(busId, departure, duration);
+            }
+        }
     }
 
     void sortedOrder(int order[]) const {
@@ -1452,6 +1564,7 @@ public:
             cout << "  No direct road exists between these stops.\n";
             return;
         }
+    }
     void showRoadCountAction() {
         cout << "  Total stops: " << roadMap.getStopCount() << "\n";
         cout << "  Total roads: " << roadMap.countRoads() << "\n";
@@ -1481,7 +1594,6 @@ public:
             }
         }
     }
-
     void showMapAction() { 
         roadMap.showMap(); 
     }
@@ -1707,12 +1819,13 @@ void showMenu() {
          << " 10. Register passenger 11. Join boarding queue 12. Board passengers\n"
          << " SCHEDULE & TICKETS (Member 4) \n"
          << " 13. Add trip           14. Show timetable     15. Show tickets\n"
-         << " 16. Save tickets to file                    ROUTE MANAGEMENT - ADDITIONAL FEATURES
-         17. Update road         19. Show stop connections
-         18. Remove road         20. Direct road details
-         21. Count total roads            0. Exit\n"
+         << " 16. Save tickets to file                    ROUTE MANAGEMENT - ADDITIONAL FEATURES"
+         << "17. Update road         19. Show stop connections\n"
+         << "18. Remove road         20. Direct road details\n"
+         << "21. Count total roads            0. Exit\n"
          << endl;
 }
+
 
 int main() {
     TransportSystem transportsystem;
