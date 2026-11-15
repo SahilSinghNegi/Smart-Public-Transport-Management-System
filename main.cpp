@@ -1338,8 +1338,20 @@ public:
             cout << "  Road not found or invalid details.\n";
         }
     }
+    void removeRoadAction() {
+        string a = askText("First stop: ");
+        string b = askText("Second stop: ");
 
-
+        if (roadMap.removeRoad(a, b)) {
+            cout << "  Road removed successfully.\n";
+        } else {
+            cout << "  Road not found.\n";
+        }
+    }
+    void showConnectionsAction() {
+        string name = askText("Enter stop name: ");
+        roadMap.showConnections(name);
+    }
     void findRouteAction() {
         int start = roadMap.findStop(askText("From: "));
         int end = roadMap.findStop(askText("To: "));
