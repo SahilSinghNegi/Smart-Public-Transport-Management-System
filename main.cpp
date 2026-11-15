@@ -1638,7 +1638,10 @@ void showMenu() {
          << " 10. Register passenger 11. Join boarding queue 12. Board passengers\n"
          << " SCHEDULE & TICKETS (Member 4) \n"
          << " 13. Add trip           14. Show timetable     15. Show tickets\n"
-         << " 16. Save tickets to file                       0. Exit\n"
+         << " 16. Save tickets to file                    ROUTE MANAGEMENT - ADDITIONAL FEATURES
+         17. Update road         19. Show stop connections
+         18. Remove road         20. Direct road details
+         21. Count total roads            0. Exit\n"
          << endl;
 }
 
