@@ -274,14 +274,10 @@ public:
         driverId = newDriverId; 
     }
     
-    void setStatus(int newStatus) {
-    if (newStatus >= AVAILABLE && newStatus <= MAINTENANCE) {
-        status = newStatus;
+    void takeOneSeat() { 
+        seatsTaken++; 
     }
-    else {
-        cout << "Invalid bus status!\n";
-    }
-}
+    
     void freeAllSeats() { 
         seatsTaken = 0; 
     }
@@ -1196,9 +1192,7 @@ public:
             registerPassenger(passengerName, age, priority == 1);
         }
     }
-    int getPassengerCount() const {
-        return passengerCount;
-    }
+
     Passenger *findPassenger(int id) {
         if (id < 1 || id > passengerCount) {
             return nullptr;
@@ -1419,85 +1413,6 @@ public:
         tickets[ticketCount] = ticket;
         return ticketCount++;
     }
-    void saveTickets() const
-    {
-        ofstream file("tickets.txt");
-
-        if(!file)
-        {
-            cout << "Unable to save tickets.\n";
-            return;
-        }
-
-        for(int i = 0; i < ticketCount; i++)
-        {
-            file << tickets[i].ticketId << ","
-                 << tickets[i].passengerId << ","
-                << tickets[i].busId << ","
-                << tickets[i].seatNumber << ","
-                << tickets[i].fromStop << ","
-                << tickets[i].toStop << ","
-                << tickets[i].km << ","
-                << tickets[i].farePaise << "\n";
-        }
-    }
-
-    void loadTickets(int passengerCount, int busCount, int stopCount)
-    {
-        ifstream file("tickets.txt");
-
-        if(!file)
-        return;
-
-        string line;
-
-        while(getline(file, line))
-        {
-            stringstream ss(line);
-
-            int id, passengerId, busId, seat;
-            int from, to, km, fare;
-            char c1, c2, c3, c4, c5, c6, c7;
-
-            if(!(ss >> id >> c1 >> passengerId >> c2
-                    >> busId >> c3 >> seat >> c4
-                    >> from >> c5 >> to >> c6
-                    >> km >> c7 >> fare))
-                continue;
-
-            if(c1 != ',' || c2 != ',' || c3 != ',' ||
-            c4 != ',' || c5 != ',' || c6 != ',' || c7 != ',')
-                continue;
-
-            if(ticketCount == Max_Tickets ||
-                id < 1001 ||
-                passengerId < 1 || passengerId > passengerCount ||
-                busId < 1 || busId > busCount ||
-                seat <= 0 ||
-                from < 0 || from >= stopCount ||
-                to < 0 || to >= stopCount ||
-                from == to || km <= 0 || fare < 0)
-                continue;
-
-            bool duplicate = false;
-            for (int i = 0; i < ticketCount; i++)
-            {
-                if (tickets[i].ticketId == id)
-                    duplicate = true;
-            }
-
-            if (duplicate)
-                continue;
-
-            tickets[ticketCount++] = {
-                id, passengerId, busId, seat,
-                from, to, km, fare
-        };
-
-        if(id >= nextTicketId)
-            nextTicketId = id + 1;
-        }
-}
 };
 
 class TransportSystem {
@@ -1534,38 +1449,8 @@ class TransportSystem {
         }
         return totalMinutes;
     }
-    
-    void restoreSeatsFromTickets() {
-        for (int i = 0; i < ticketOffice.getTicketCount(); i++) {
-            Bus *bus = busManager.findBusById(ticketOffice.getTicket(i).busId);
-            if (bus != nullptr && bus->seatsFree() > 0) {
-                bus->takeOneSeat();
-            }
-        }
-    }
 
 public:
-    bool loadAll() {
-        roadMap.loadRoadMap();
-        busManager.loadBuses();
-        busManager.loadDrivers();
-        passengerDesk.loadPassengers();
-        timetable.loadTimetable();
-        ticketOffice.loadTickets(passengerDesk.getPassengerCount(),
-                                 busManager.getBusCount(),
-                                 roadMap.getStopCount());
-        restoreSeatsFromTickets();
-        return busManager.getBusCount() > 0;
-    }
-
-    void saveAll() const {
-        roadMap.saveRoadMap();
-        busManager.saveBuses();
-        busManager.saveDrivers();
-        passengerDesk.savePassengers();
-        timetable.saveTimetable();
-        ticketOffice.saveTickets();
-    }
     void loadDemoData() {
         roadMap.addRoad("Station", "Market", 4, 10);
         roadMap.addRoad("Market", "College", 3, 8);
@@ -2012,12 +1897,10 @@ void cancelQueueAction() {
         }
     }
 
-        void saveTicketsAction() {
-        saveAll();
-        cout << "  All data saved.\n";
-        ofstream ticketFile("tickets_report.txt");
+    void saveTicketsAction() {
+        ofstream ticketFile("tickets.txt");
         if (!ticketFile) { 
-            cout << "  Could not open tickets_report.txt.\n";
+            cout << "  Could not open tickets.txt.\n"; 
             return; 
         }
         
@@ -2028,7 +1911,7 @@ void cancelQueueAction() {
                        << roadMap.stopName(ticket.fromStop) << "," << roadMap.stopName(ticket.toStop) << "," << ticket.km << ","
                        << moneyToText(ticket.farePaise) << "\n";
         }
-        cout << "  Saved " << ticketOffice.getTicketCount() << " ticket(s) to tickets_report.txt\n";
+        cout << "  Saved " << ticketOffice.getTicketCount() << " ticket(s) to tickets.txt\n";
     }
 };
 
@@ -2046,9 +1929,8 @@ void showMenu() {
         
          << " SCHEDULE & TICKETS (Member 4) \n"
          << " 13. Add trip           14. Show timetable     15. Show tickets\n"
-         << " 16. Save data + ticket report\n"
-         << "  ROUTE MANAGEMENT - ADDITIONAL FEATURES\n"
-         << " 17. Update road         19. Show stop connections\n"
+         << " 16. Save tickets to file                    ROUTE MANAGEMENT - ADDITIONAL FEATURES"
+         << "17. Update road         19. Show stop connections\n"
          << "18. Remove road         20. Direct road details\n"
          << "21. Count total roads            0. Exit\n"
          << endl;
@@ -2057,15 +1939,9 @@ void showMenu() {
 
 int main() {
     TransportSystem transportsystem;
-    if (transportsystem.loadAll())
-    {
-        cout << "Saved data loaded from files.\n";
-    }
-    else
-    {
-        transportsystem.loadDemoData();
-        cout << "No saved data found. Demo data loaded.\n";
-    }
+    transportsystem.loadDemoData();
+    
+    cout << "Demo data loaded (stops: Station, Market, College, Hospital, Airport).\n";
     
     while (true) {
         showMenu();
@@ -2140,12 +2016,10 @@ int main() {
     transportsystem.cancelQueueAction();
     break;
             case 0: 
-                transportsystem.saveAll();
-                cout << "  Data saved.\n"; 
+                cout << "\n"; 
                 return 0;
             default: 
                 cout << "  Please choose a number from the menu.\n";
         }
-        transportsystem.saveAll();
     }
 }
