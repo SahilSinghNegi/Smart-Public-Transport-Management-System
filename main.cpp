@@ -1123,7 +1123,9 @@ public:
             registerPassenger(passengerName, age, priority == 1);
         }
     }
-
+    int getPassengerCount() const {
+        return passengerCount;
+    }
     Passenger *findPassenger(int id) {
         if (id < 1 || id > passengerCount) {
             return nullptr;
@@ -1437,8 +1439,38 @@ class TransportSystem {
         }
         return totalMinutes;
     }
+    
+    void restoreSeatsFromTickets() {
+        for (int i = 0; i < ticketOffice.getTicketCount(); i++) {
+            Bus *bus = busManager.findBusById(ticketOffice.getTicket(i).busId);
+            if (bus != nullptr && bus->seatsFree() > 0) {
+                bus->takeOneSeat();
+            }
+        }
+    }
 
 public:
+    bool loadAll() {
+        roadMap.loadRoadMap();
+        busManager.loadBuses();
+        busManager.loadDrivers();
+        passengerDesk.loadPassengers();
+        timetable.loadTimetable();
+        ticketOffice.loadTickets(passengerDesk.getPassengerCount(),
+                                 busManager.getBusCount(),
+                                 roadMap.getStopCount());
+        restoreSeatsFromTickets();
+        return busManager.getBusCount() > 0;
+    }
+
+    void saveAll() const {
+        roadMap.saveRoadMap();
+        busManager.saveBuses();
+        busManager.saveDrivers();
+        passengerDesk.savePassengers();
+        timetable.saveTimetable();
+        ticketOffice.saveTickets();
+    }
     void loadDemoData() {
         roadMap.addRoad("Station", "Market", 4, 10);
         roadMap.addRoad("Market", "College", 3, 8);
@@ -1873,10 +1905,12 @@ public:
         }
     }
 
-    void saveTicketsAction() {
-        ofstream ticketFile("tickets.txt");
+        void saveTicketsAction() {
+        saveAll();
+        cout << "  All data saved.\n";
+        ofstream ticketFile("tickets_report.txt");
         if (!ticketFile) { 
-            cout << "  Could not open tickets.txt.\n"; 
+            cout << "  Could not open tickets_report.txt.\n";
             return; 
         }
         
@@ -1887,7 +1921,7 @@ public:
                        << roadMap.stopName(ticket.fromStop) << "," << roadMap.stopName(ticket.toStop) << "," << ticket.km << ","
                        << moneyToText(ticket.farePaise) << "\n";
         }
-        cout << "  Saved " << ticketOffice.getTicketCount() << " ticket(s) to tickets.txt\n";
+        cout << "  Saved " << ticketOffice.getTicketCount() << " ticket(s) to tickets_report.txt\n";
     }
 };
 
@@ -1902,8 +1936,9 @@ void showMenu() {
          << " 10. Register passenger 11. Join boarding queue 12. Board passengers\n"
          << " SCHEDULE & TICKETS (Member 4) \n"
          << " 13. Add trip           14. Show timetable     15. Show tickets\n"
-         << " 16. Save tickets to file                    ROUTE MANAGEMENT - ADDITIONAL FEATURES"
-         << "17. Update road         19. Show stop connections\n"
+         << " 16. Save data + ticket report\n"
+         << "  ROUTE MANAGEMENT - ADDITIONAL FEATURES\n"
+         << " 17. Update road         19. Show stop connections\n"
          << "18. Remove road         20. Direct road details\n"
          << "21. Count total roads            0. Exit\n"
          << endl;
@@ -1912,9 +1947,15 @@ void showMenu() {
 
 int main() {
     TransportSystem transportsystem;
-    transportsystem.loadDemoData();
-    
-    cout << "Demo data loaded (stops: Station, Market, College, Hospital, Airport).\n";
+    if (transportsystem.loadAll())
+    {
+        cout << "Saved data loaded from files.\n";
+    }
+    else
+    {
+        transportsystem.loadDemoData();
+        cout << "No saved data found. Demo data loaded.\n";
+    }
     
     while (true) {
         showMenu();
@@ -1986,10 +2027,12 @@ int main() {
                 transportsystem.showRoadCountAction();
                 break;
             case 0: 
-                cout << "\n"; 
+                transportsystem.saveAll();
+                cout << "  Data saved.\n"; 
                 return 0;
             default: 
                 cout << "  Please choose a number from the menu.\n";
         }
+        transportsystem.saveAll();
     }
 }
