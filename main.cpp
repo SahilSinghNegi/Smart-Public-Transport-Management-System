@@ -1280,6 +1280,10 @@ public:
             cout << "  Road not found.\n";
         }
     }
+    void showConnectionsAction() {
+        string name = askText("Enter stop name: ");
+        roadMap.showConnections(name);
+    }
     void findRouteAction() {
         int start = roadMap.findStop(askText("From: "));
         int end = roadMap.findStop(askText("To: "));
