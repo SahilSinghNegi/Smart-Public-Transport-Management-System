@@ -989,6 +989,31 @@ public:
         itemCount--;
         return request;
     }
+bool removePassenger(int passengerId) {
+    BoardingRequest temp[Queue_Size];
+    int newCount = 0;
+
+    for (int i = 0; i < itemCount; i++) {
+        BoardingRequest request =
+            items[(frontPosition + i) % Queue_Size];
+
+        if (request.passengerId != passengerId) {
+            temp[newCount++] = request;
+        }
+    }
+
+    if (newCount == itemCount)
+        return false;
+
+    frontPosition = 0;
+    itemCount = newCount;
+
+    for (int i = 0; i < newCount; i++) {
+        items[i] = temp[i];
+    }
+
+    return true;
+}
 };
 
 class PriorityHeap {
@@ -1053,6 +1078,54 @@ public:
         }
         return top;
     }
+bool removePassenger(int passengerId) {
+    int position = -1;
+
+    for (int i = 0; i < itemCount; i++) {
+        if (items[i].passengerId == passengerId) {
+            position = i;
+            break;
+        }
+    }
+
+    if (position == -1)
+        return false;
+
+    itemCount--;
+
+    if (position == itemCount)
+        return true;
+
+    items[position] = items[itemCount];
+
+    while (position > 0 &&
+           boardsBefore(items[position], items[(position - 1) / 2])) {
+        swapItems(position, (position - 1) / 2);
+        position = (position - 1) / 2;
+    }
+
+    while (true) {
+        int left = 2 * position + 1;
+        int right = left + 1;
+        int best = position;
+
+        if (left < itemCount &&
+            boardsBefore(items[left], items[best]))
+            best = left;
+
+        if (right < itemCount &&
+            boardsBefore(items[right], items[best]))
+            best = right;
+
+        if (best == position)
+            break;
+
+        swapItems(position, best);
+        position = best;
+    }
+
+    return true;
+}
 };
 
 struct WaitingList {
@@ -1141,7 +1214,29 @@ public:
     int peopleWaiting(int busId) const {
         return waitingLists[busId - 1].priorityQueue.size() + waitingLists[busId - 1].normalQueue.size();
     }
+bool cancelWaitingRequest(int busId, int passengerId) {
+    if (busId < 1 || busId > Max_Buses ||
+        passengerId < 1 || passengerId > passengerCount)
+        return false;
 
+    if (!isWaiting[passengerId][busId])
+        return false;
+
+    Passenger &passenger = passengers[passengerId - 1];
+    WaitingList &list = waitingLists[busId - 1];
+
+    bool removed;
+
+    if (passenger.priorityLevel() > 0)
+        removed = list.priorityQueue.removePassenger(passengerId);
+    else
+        removed = list.normalQueue.removePassenger(passengerId);
+
+    if (removed)
+        isWaiting[passengerId][busId] = false;
+
+    return removed;
+}
    int joinWaitingList(int busId, const Passenger &passenger, int fromStop, int toStop) {
     if (busId < 1 || busId > Max_Buses ||
         passenger.getId() < 1 || passenger.getId() > passengerCount) {
@@ -1778,6 +1873,18 @@ public:
         }
         cout << " queue (" << waiting << " waiting).\n";
     }
+void cancelQueueAction() {
+    int passengerId = askNumber("Passenger ID: ");
+    int busId = askNumber("Bus ID: ");
+
+    if (passengerDesk.cancelWaitingRequest(busId, passengerId)) {
+        cout << "  Queue request cancelled successfully.\n";
+        cout << "  Remaining passengers: "
+             << passengerDesk.peopleWaiting(busId) << "\n";
+    } else {
+        cout << "  Passenger is not waiting in this bus queue.\n";
+    }
+}
 
     void boardPassengersAction() {
         int busId = askNumber("Bus ID to start boarding: ");
@@ -1939,6 +2046,9 @@ void showMenu() {
          << "  7. Add road            8. Find route          9. Show road map\n"
          << "  PASSENGER & BOARDING (Member 3) \n"
          << " 10. Register passenger 11. Join boarding queue 12. Board passengers\n"
+        
+        << " 22. Cancel queue request\n"
+        
          << " SCHEDULE & TICKETS (Member 4) \n"
          << " 13. Add trip           14. Show timetable     15. Show tickets\n"
          << " 16. Save data + ticket report\n"
@@ -2031,6 +2141,9 @@ int main() {
             case 21:
                 transportsystem.showRoadCountAction();
                 break;
+            case 22:
+    transportsystem.cancelQueueAction();
+    break;
             case 0: 
                 transportsystem.saveAll();
                 cout << "  Data saved.\n"; 
