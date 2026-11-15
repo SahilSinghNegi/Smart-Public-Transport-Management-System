@@ -20,6 +20,9 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#ifdef _WIN32
+#include <conio.h>
+#endif
 
 using namespace std;
 
@@ -155,6 +158,84 @@ int splitByComma(const string &text, string parts[], int maxParts) {
     return count;
 }
 
+// SCREEN HELPERS 
+void clearScreen() {
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
+
+string repeatChar(char symbol, int count) {
+    string text = "";
+    for (int i = 0; i < count; i++) {
+        text += symbol;
+    }
+    return text;
+}
+
+void printTitle(const string &title) {
+    const int width = 56;
+    int space = (width - (int)title.size()) / 2;
+    if (space < 0) {
+        space = 0;
+    }
+       cout << "\n  " << repeatChar(' ', space) << title << "\n";
+}
+
+void printSection(const string &name) {
+    int dashes = 50 - (int)name.size();
+    if (dashes < 3) {
+        dashes = 3;
+    }
+    cout << "\n   " << name << " " << repeatChar(' ', dashes) << "\n";
+}
+
+void printOption(int number, const string &text) {
+    cout << "     [";
+    if (number < 10) {
+        cout << " ";
+    }
+    cout << number << "]  " << text << "\n";
+}
+
+void pauseScreen() {
+    askText("\n  Press Enter to continue...");
+}
+
+// Reads a password.
+string askPassword(const string &question) {
+#ifdef _WIN32
+    cout << question;
+    string password = "";
+    while (true) {
+        int key = _getch();
+        if (key == '\r' || key == '\n') {
+            cout << "\n";
+            break;
+        }
+        if (key == 0 || key == 224) {
+            _getch();
+            continue;
+        }
+        if (key == 8) {
+            if (!password.empty()) {
+                password.erase(password.size() - 1);
+                cout << "\b \b";
+            }
+        } else if (key >= 32 && key <= 126) {
+            password += (char)key;
+            cout << '*';
+        }
+    }
+    return password;
+#else
+    return askText(question);
+#endif
+}
+
+
 // SHARED PARENT CLASS (Member 1 & Member 3)
 class Person {
 protected:
@@ -266,22 +347,21 @@ public:
         return routeStops[position]; 
     }
     
-    void setStatus(int newStatus) { 
-        status = newStatus; 
-    }
-    
     void setDriver(int newDriverId) { 
         driverId = newDriverId; 
     }
     
     void setStatus(int newStatus) {
-    if (newStatus >= AVAILABLE && newStatus <= MAINTENANCE) {
-        status = newStatus;
+        if (newStatus >= AVAILABLE && newStatus <= MAINTENANCE) {
+            status = newStatus;
+        } else {
+            cout << "Invalid bus status!\n";
+        }
     }
-    else {
-        cout << "Invalid bus status!\n";
+
+    void takeOneSeat() { 
+        seatsTaken++; 
     }
-}
     void freeAllSeats() { 
         seatsTaken = 0; 
     }
@@ -401,7 +481,8 @@ public:
         return busCount;
     }
  int addDriver(const string &driverName, const string &license) 
-    for (int i = 0; i < driverCount; i++) {
+ {
+    for(int i = 0; i < driverCount; i++) {
         if (drivers[i].getLicenseNumber() == license) {
             return -1;
         }
@@ -1505,12 +1586,62 @@ public:
 }
 };
 
+// ADMIN LOGIN 
+class AdminAccount {
+    string username;
+    unsigned int passwordHash;
+
+    static unsigned int hashText(const string &text) {
+        unsigned int hash = 5381;
+        for (size_t i = 0; i < text.size(); i++) {
+            hash = hash * 33 + (unsigned char)text[i];
+        }
+        return hash;
+    }
+
+public:
+    AdminAccount() : username("admin"), passwordHash(hashText("admin123")) {}
+
+    bool check(const string &typedName, const string &typedPassword) const {
+        return typedName == username && hashText(typedPassword) == passwordHash;
+    }
+
+    bool checkPassword(const string &typedPassword) const {
+        return hashText(typedPassword) == passwordHash;
+    }
+
+    void changePassword(const string &newPassword) {
+        passwordHash = hashText(newPassword);
+    }
+
+    void save() const {
+        ofstream file("admin.txt");
+        if (!file) {
+            cout << "Unable to save admin account.\n";
+            return;
+        }
+        file << passwordHash << "\n";
+    }
+
+    void load() {
+        ifstream file("admin.txt");
+        if (!file) {
+            return;
+        }
+        unsigned int savedHash;
+        if (file >> savedHash) {
+            passwordHash = savedHash;
+        }
+    }
+};
+
 class TransportSystem {
     BusManager busManager;
     RoadMap roadMap;
     PassengerDesk passengerDesk;
     Timetable timetable;
     TicketOffice ticketOffice;
+    AdminAccount admin;
 
     string routeTextOf(const Bus &bus) const {
         if (bus.getRouteLength() == 0) {
@@ -1559,9 +1690,10 @@ public:
         ticketOffice.loadTickets(passengerDesk.getPassengerCount(),
                                  busManager.getBusCount(),
                                  roadMap.getStopCount());
+        admin.load();
         restoreSeatsFromTickets();
         return busManager.getBusCount() > 0;
-    }
+    }   
 
     void saveAll() const {
         roadMap.saveRoadMap();
@@ -1570,7 +1702,44 @@ public:
         passengerDesk.savePassengers();
         timetable.saveTimetable();
         ticketOffice.saveTickets();
+         admin.save();
     }
+
+        bool adminLogin() {
+        printTitle("ADMIN LOGIN");
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            string name = askText("  Username: ");
+            string password = askPassword("  Password: ");
+            if (admin.check(name, password)) {
+                cout << "\n  Login successful. Welcome, " << name << "!\n";
+                pauseScreen();
+                return true;
+            }
+            cout << "  Wrong username or password (" << (3 - attempt) << " attempt(s) left).\n\n";
+        }
+        pauseScreen();
+        return false;
+    }
+
+    void changePasswordAction() {
+        string oldPassword = askPassword("  Current password: ");
+        if (!admin.checkPassword(oldPassword)) {
+            cout << "  Wrong current password.\n";
+            return;
+        }
+        string newPassword = askPassword("  New password (min 4 characters): ");
+        if (newPassword.size() < 4) {
+            cout << "  Password is too short.\n";
+            return;
+        }
+        if (newPassword != askPassword("  Type the new password again: ")) {
+            cout << "  The two passwords do not match.\n";
+            return;
+        }
+        admin.changePassword(newPassword);
+        cout << "  Password changed successfully.\n";
+    }
+
     void loadDemoData() {
         roadMap.addRoad("Station", "Market", 4, 10);
         roadMap.addRoad("Market", "College", 3, 8);
@@ -1779,6 +1948,7 @@ public:
             cout << "  No direct road exists between these stops.\n";
             return;
         }
+        cout << "  Direct road: " << a << " <-> " << b << " | " << km << " km | " << minutes << " min\n";
     }
     void showRoadCountAction() {
         cout << "  Total stops: " << roadMap.getStopCount() << "\n";
@@ -2037,45 +2207,118 @@ void cancelQueueAction() {
     }
 };
 
-void showMenu() {
-    cout << "\n SMART PUBLIC TRANSPORT SYSTEM \n"
-         << "  BUS & VEHICLE (Member 1) \n"
-         << "  1. Add bus             3. Change bus status   5. Assign route to bus\n"
-         << "  2. Search bus          4. Add driver          6. Show all buses\n"
-         << "  ROUTE & NAVIGATION (Member 2) \n"
-         << "  7. Add road            8. Find route          9. Show road map\n"
-         << "  PASSENGER & BOARDING (Member 3) \n"
-         << " 10. Register passenger 11. Join boarding queue 12. Board passengers\n"
-        
-        << " 22. Cancel queue request\n"
-        
-         << " SCHEDULE & TICKETS (Member 4) \n"
-         << " 13. Add trip           14. Show timetable     15. Show tickets\n"
-         << " 16. Save data + ticket report\n"
-         << "  ROUTE MANAGEMENT - ADDITIONAL FEATURES\n"
-         << " 17. Update road         19. Show stop connections\n"
-         << "18. Remove road         20. Direct road details\n"
-         << "21. Count total roads            0. Exit\n"
-         << endl;
+//These are the options which guest can use
+bool guestCanUse(int choice) {
+    return choice == 0 || choice == 2 || choice == 6 || choice == 8 || choice == 9 ||
+           choice == 10 || choice == 11 || choice == 14 || choice == 19 ;
 }
 
+// Shows one menu line, but only if this user is allowed to use it.
+void menuItem(bool isAdmin, int number, const string &text) {
+    if (isAdmin || guestCanUse(number)) {
+        printOption(number, text);
+    }
+}
+
+int showStartScreen(const string &note) {
+    clearScreen();
+    printTitle("SMART PUBLIC TRANSPORT SYSTEM");
+    cout << "  " << note << "\n";
+    printSection("WELCOME");
+    printOption(1, "Admin login");
+    printOption(2, "Continue as guest");
+    printOption(0, "Exit");
+    cout << "\n";
+    return askNumber("  Enter your choice: ");
+}
+
+void showMenu(bool isAdmin) {
+    clearScreen();
+    printTitle("SMART PUBLIC TRANSPORT SYSTEM");
+    if (isAdmin) {
+        cout << "  Logged in as: ADMIN\n";
+    } else {
+        cout << "  Mode: GUEST (limited options)\n";
+    }
+
+    printSection("BUS & VEHICLE");
+    menuItem(isAdmin, 1, "Add bus");
+    menuItem(isAdmin, 2, "Search bus");
+    menuItem(isAdmin, 3, "Change bus status");
+    menuItem(isAdmin, 4, "Add driver");
+    menuItem(isAdmin, 5, "Assign route to bus");
+    menuItem(isAdmin, 6, "Show all buses");
+
+    printSection("ROUTES & NAVIGATION");
+    menuItem(isAdmin, 7, "Add road");
+    menuItem(isAdmin, 17, "Update road");
+    menuItem(isAdmin, 18, "Remove road");
+    menuItem(isAdmin, 8, "Find best route");
+    menuItem(isAdmin, 9, "Show road map");
+    menuItem(isAdmin, 19, "Show stop connections");
+    menuItem(isAdmin, 20, "Direct road details");
+    menuItem(isAdmin, 21, "Count total roads");
+
+    printSection("PASSENGERS & BOARDING");
+    menuItem(isAdmin, 10, "Register passenger");
+    menuItem(isAdmin, 11, "Join boarding queue");
+    menuItem(isAdmin, 12, "Board passengers");
+    menuItem(isAdmin, 22, "Cancel queue request");
+
+    printSection("SCHEDULE & TICKETS");
+    menuItem(isAdmin, 13, "Add trip");
+    menuItem(isAdmin, 14, "Show timetable");
+    menuItem(isAdmin, 15, "Show tickets");
+    menuItem(isAdmin, 16, "Save data + ticket report");
+
+    if (isAdmin) {
+        printSection("ADMIN");
+        printOption(23, "Change admin password");
+    }
+
+    printSection("EXIT");
+    printOption(0, "Exit (data is saved)");
+    cout << "\n";
+}
 
 int main() {
-    TransportSystem transportsystem;
-    if (transportsystem.loadAll())
-    {
-        cout << "Saved data loaded from files.\n";
-    }
-    else
-    {
+        TransportSystem transportsystem;
+    string loadNote;
+
+    if (transportsystem.loadAll()) {
+        loadNote = "Saved data loaded from files.";
+    } else {
         transportsystem.loadDemoData();
-        cout << "No saved data found. Demo data loaded.\n";
+        loadNote = "No saved data found. Demo data loaded.";
     }
-    
+
+    bool isAdmin = false;
     while (true) {
-        showMenu();
-        int choice = askNumber("Enter your choice: ");
+        int mode = showStartScreen(loadNote);
+        if (mode == 0) {
+            transportsystem.saveAll();
+            cout << "\n  Goodbye!\n";
+            return 0;
+        }
+        if (mode == 2) {
+            break;
+        }
+        if (mode == 1 && transportsystem.adminLogin()) {
+            isAdmin = true;
+            break;
+        }
+    }
+
+    while (true) {
+        showMenu(isAdmin);
+        int choice = askNumber("  Enter your choice: ");
         cout << "\n";
+
+        if (!isAdmin && !guestCanUse(choice)) {
+            cout << "  This option is not available in guest mode.\n";
+            pauseScreen();
+            continue;
+        }
         
         switch (choice) {
             case 1: 
@@ -2142,8 +2385,11 @@ int main() {
                 transportsystem.showRoadCountAction();
                 break;
             case 22:
-    transportsystem.cancelQueueAction();
-    break;
+                transportsystem.cancelQueueAction();
+                break;
+            case 23:
+                transportsystem.changePasswordAction();
+                break;
             case 0: 
                 transportsystem.saveAll();
                 cout << "  Data saved.\n"; 
@@ -2152,5 +2398,6 @@ int main() {
                 cout << "  Please choose a number from the menu.\n";
         }
         transportsystem.saveAll();
+        pauseScreen();
     }
 }

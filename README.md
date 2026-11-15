@@ -10,15 +10,22 @@ Mark each bus as Available, Running or under Maintenance and give it a route of 
 
 2.Route and navigation
 Build a road map with the distance and travel time between stops and view the whole network.
+Add, update and remove roads.
 Find the shortest or the fastest route between any two stops using Dijkstra’s algorithm.
 
 3.Passenger and boarding
 Register passengers and place them in a bus’s boarding queue for a chosen start and end stop.
 Priority passengers, children and seniors board first, and boarding stops once the bus is full.
+Passengers can cancel a queue request.
 
 4.Timetable and tickets
 Schedule trips with clash detection and view the timetable sorted by departure time.
 Tickets with seat and fare are issued on boarding, then can be viewed, totalled and saved to a file.
+
+Admin login - log in as admin for full access or continue as guestt for a limited options.
+
+Auto-save - data is saved after every action and loaded on the next start.
+
 
 Files
 
@@ -32,4 +39,6 @@ schedule_tickets.h -> Timetable and tickets
 
 common.h, common.cpp, person.h ->	Shared helpers
 
-main.cpp -> Starts the program and joins everything
+main.cpp -> Starts the program, contains menus and login system.
+
+admin_Account.h -> Admin login
