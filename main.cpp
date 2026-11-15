@@ -838,6 +838,72 @@ public:
             cout << "\n";
         }
     }
+
+    void saveRoadMap() const
+    {
+        ofstream file("routes.txt");
+        if(!file)
+        {
+            cout << "Unable to save routes.\n";
+            return;
+        }
+        file << stopCount << "\n";
+        for(int i = 0; i < stopCount; i++)
+        {
+            file << stopNames[i] << "\n";
+        }
+
+        for(int i = 0; i < stopCount; i++)
+        {
+            for(int j = i + 1; j < stopCount; j++)
+            {
+                if (roadKm[i][j] > 0)
+                {
+                    file << i << ","
+                         << j << ","
+                         << roadKm[i][j] << ","
+                         << roadMinutes[i][j] << "\n";
+                }
+            }
+        }
+    }
+
+    void loadRoadMap()
+    {
+        ifstream file("routes.txt");
+
+        if(!file)
+        {
+            return;
+        }
+        file >> stopCount;
+        file.ignore();
+        if(stopCount < 0 || stopCount > Max_Stops)
+        {
+            stopCount = 0;
+            return;
+        }
+
+        for (int i = 0; i < stopCount; i++)
+        {
+            getline(file, stopNames[i]);
+        } 
+        int a, b, km, minutes;
+        while(file >> a)
+        {
+            char comma;
+            file >> comma >> b
+                 >> comma >> km
+                 >> comma >> minutes;
+            if (a >= 0 && a < stopCount &&
+                b >= 0 && b < stopCount &&
+                a != b && km > 0 && minutes > 0)
+            {
+                roadKm[a][b] = roadKm[b][a] = km;
+                roadMinutes[a][b] = roadMinutes[b][a] = minutes;
+            }
+        }  
+    }
 };
 
 // MEMBER 3 : PASSENGER & BOARDING MANAGEMENT
