@@ -528,6 +528,32 @@ public:
         }
         return count;
     }
+      void showConnections(const string &name) const {
+        int stop = findStop(name);
+
+        if (stop == -1) {
+            cout << "  Stop not found.\n";
+            return;
+        }
+
+        cout << "  Connections of " << name << ":\n";
+
+        bool found = false;
+
+        for (int i = 0; i < stopCount; i++) {
+            if (roadKm[stop][i] > 0) {
+                cout << "  -> " << stopNames[i]
+                     << " | " << roadKm[stop][i] << " km"
+                     << " | " << roadMinutes[stop][i] << " minutes\n";
+
+                found = true;
+            }
+        }
+
+        if (!found) {
+            cout << "  No connected roads.\n";
+        }
+    }
      bool removeRoad(const string &nameA, const string &nameB) {
         int a = findStop(nameA);
         int b = findStop(nameB);
