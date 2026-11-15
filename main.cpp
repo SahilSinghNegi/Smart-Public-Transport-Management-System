@@ -274,10 +274,14 @@ public:
         driverId = newDriverId; 
     }
     
-    void takeOneSeat() { 
-        seatsTaken++; 
+    void setStatus(int newStatus) {
+    if (newStatus >= AVAILABLE && newStatus <= MAINTENANCE) {
+        status = newStatus;
     }
-    
+    else {
+        cout << "Invalid bus status!\n";
+    }
+}
     void freeAllSeats() { 
         seatsTaken = 0; 
     }
