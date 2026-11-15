@@ -980,6 +980,7 @@ class PassengerDesk {
     WaitingList waitingLists[Max_Buses];
     int passengerCount = 0;
     int arrivalCounter = 0;
+bool isWaiting[Max_Passengers + 1][Max_Buses + 1] = {};
 
 public:
     int registerPassenger(const string &passengerName, int age, bool priority) {
@@ -1001,31 +1002,54 @@ public:
         return waitingLists[busId - 1].priorityQueue.size() + waitingLists[busId - 1].normalQueue.size();
     }
 
-    int joinWaitingList(int busId, const Passenger &passenger, int fromStop, int toStop) {
-        BoardingRequest request = {passenger.getId(), fromStop, toStop, passenger.priorityLevel(), ++arrivalCounter};
-        WaitingList &list = waitingLists[busId - 1];
-        bool added;
-        
-        if (request.level > 0) {
-            added = list.priorityQueue.push(request);
-        } else {
-            added = list.normalQueue.push(request);
-        }
+   int joinWaitingList(int busId, const Passenger &passenger, int fromStop, int toStop) {
+    if (busId < 1 || busId > Max_Buses ||
+        passenger.getId() < 1 || passenger.getId() > passengerCount) {
+        return -1;
+    }
 
-        if (!added) {
-            return -1;
-        }
+    if (isWaiting[passenger.getId()][busId]) {
+        return -2;
+    }
+
+    BoardingRequest request = {
+        passenger.getId(), fromStop, toStop,
+        passenger.priorityLevel(), ++arrivalCounter
+    };
+
+    WaitingList &list = waitingLists[busId - 1];
+    bool added;
+
+    if (request.level > 0) {
+        added = list.priorityQueue.push(request);
+    } else {
+        added = list.normalQueue.push(request);
+    }
+
+    if (!added) {
+        return -1;
+    }
+
+    isWaiting[passenger.getId()][busId] = true;
+    return peopleWaiting(busId);
+}
         return peopleWaiting(busId);
     }
 
-    BoardingRequest callNextPassenger(int busId) {
-        WaitingList &list = waitingLists[busId - 1];
-        if (list.priorityQueue.size() > 0) {
-            return list.priorityQueue.pop();
-        }
-        return list.normalQueue.pop();
+   BoardingRequest callNextPassenger(int busId) {
+    WaitingList &list = waitingLists[busId - 1];
+
+    BoardingRequest request;
+
+    if (list.priorityQueue.size() > 0) {
+        request = list.priorityQueue.pop();
+    } else {
+        request = list.normalQueue.pop();
     }
-};
+
+    isWaiting[request.passengerId][busId] = false;
+    return request;
+}
 
 // MEMBER 4 : SCHEDULE, TICKET & SYSTEM INTEGRATION
 struct Trip {
@@ -1425,6 +1449,10 @@ public:
         }
         
         int waiting = passengerDesk.joinWaitingList(bus->getId(), *passenger, fromStop, toStop);
+        if (waiting == -2) {
+    cout << "  Passenger is already waiting for this bus.\n";
+    return;
+}
         if (waiting == -1) { 
             cout << "  The waiting list is full.\n"; 
             return; 
