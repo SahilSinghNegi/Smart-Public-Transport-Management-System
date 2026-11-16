@@ -7,3 +7,6 @@
 7,Asfjksa,23,1
 8,Yoaya,24,1
 9,Rohan,77,1
+10,Guddu,23,0
+11,Ansh,23,1
+12,Captain,45,0

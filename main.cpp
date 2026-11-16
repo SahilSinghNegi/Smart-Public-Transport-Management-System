@@ -1717,7 +1717,6 @@ public:
             }
             cout << "  Wrong username or password (" << (3 - attempt) << " attempt(s) left).\n\n";
         }
-        pauseScreen();
         return false;
     }
 
@@ -2221,7 +2220,7 @@ void menuItem(bool isAdmin, int number, const string &text) {
 }
 
 int showStartScreen(const string &note) {
-    clearScreen();
+    
     printTitle("SMART PUBLIC TRANSPORT SYSTEM");
     cout << "  " << note << "\n";
     printSection("WELCOME");
@@ -2233,7 +2232,6 @@ int showStartScreen(const string &note) {
 }
 
 void showMenu(bool isAdmin) {
-    clearScreen();
     printTitle("SMART PUBLIC TRANSPORT SYSTEM");
     if (isAdmin) {
         cout << "  Logged in as: ADMIN\n";
@@ -2316,7 +2314,6 @@ int main() {
 
         if (!isAdmin && !guestCanUse(choice)) {
             cout << "  This option is not available in guest mode.\n";
-            pauseScreen();
             continue;
         }
         
@@ -2398,6 +2395,6 @@ int main() {
                 cout << "  Please choose a number from the menu.\n";
         }
         transportsystem.saveAll();
-        pauseScreen();
+        
     }
 }
