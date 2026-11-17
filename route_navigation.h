@@ -64,6 +64,19 @@ public:
         roadMinutes[a][b] = roadMinutes[b][a] = minutes;
         return true;
     }
+     void updateRoadAction() {
+        string a = askText("First stop: ");
+        string b = askText("Second stop: ");
+
+        int km = askNumber("New distance in km: ");
+        int minutes = askNumber("New travel time in minutes: ");
+
+        if (roadMap.updateRoad(a, b, km, minutes)) {
+            cout << "  Road details updated successfully.\n";
+        } else {
+            cout << "  Road not found or invalid details.\n";
+        }
+    }
 
     int findBestRoute(int start, int end, int path[], int &pathLength, bool useTime) const {
         if (start < 0 || end < 0) {
