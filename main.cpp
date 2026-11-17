@@ -1364,6 +1364,22 @@ bool cancelWaitingRequest(int busId, int passengerId) {
     isWaiting[request.passengerId][busId] = false;
     return request;
 }
+void displayQueueStatus(int busId) {
+    if (busId < 1 || busId > Max_Buses) {
+        cout << "Invalid Bus ID!\n";
+        return;
+    }
+
+    int normal = waitingLists[busId - 1].normalQueue.size();
+    int priority = waitingLists[busId - 1].priorityQueue.size();
+
+    cout << "\n========== QUEUE STATUS ==========\n";
+    cout << "Bus ID: " << busId << "\n";
+    cout << "Normal Queue: " << normal << "\n";
+    cout << "Priority Queue: " << priority << "\n";
+    cout << "Total Waiting: " << normal + priority << "\n";
+    cout << "==================================\n";
+}
 };
 
 // MEMBER 4 : SCHEDULE, TICKET & SYSTEM INTEGRATION
