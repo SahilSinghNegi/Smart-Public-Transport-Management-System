@@ -112,3 +112,18 @@ public:
         
         return bestDistance[end];
     }
+    string stopsToText(const int stops[], int length) const {
+        string text = "";
+        for (int i = 0; i < length; i++) {
+            text += stopNames[stops[i]];
+            if (i + 1 < length) {
+                text += " -> ";
+            }
+        }
+        return text;
+    }
+
+    void showMap() const {
+        if (stopCount == 0) {
+            cout << "  No stops yet.\n";
+        }
