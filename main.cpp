@@ -1379,6 +1379,82 @@ void displayQueueStatus(int busId) {
     cout << "Priority Queue: " << priority << "\n";
     cout << "Total Waiting: " << normal + priority << "\n";
     cout << "==================================\n";
+
+void generatePassengerReport() {
+    if (passengerCount == 0) {
+        cout << "\nNo passengers registered yet!\n";
+        return;
+    }
+
+    int children = 0;
+    int seniorCitizens = 0;
+    int adults = 0;
+    int priorityPassengers = 0;
+    int normalPassengers = 0;
+    int halfFarePassengers = 0;
+
+    cout << "\n========== PASSENGER ANALYTICS REPORT ==========\n";
+
+    cout << left
+         << setw(12) << "ID"
+         << setw(20) << "NAME"
+         << setw(10) << "AGE"
+         << setw(15) << "CATEGORY"
+         << setw(15) << "PRIORITY"
+         << "FARE\n";
+
+    cout << string(85, '-') << "\n";
+
+    for (int i = 0; i < passengerCount; i++) {
+        int age = passengers[i].getAge();
+        bool priority = passengers[i].hasPriority();
+
+        string category;
+        string fare;
+
+        if (age <= 12) {
+            category = "Child";
+            children++;
+            halfFarePassengers++;
+            fare = "Half Fare";
+        }
+        else if (age >= 60) {
+            category = "Senior";
+            seniorCitizens++;
+            halfFarePassengers++;
+            fare = "Half Fare";
+        }
+        else {
+            category = "Adult";
+            adults++;
+            fare = "Full Fare";
+        }
+
+        if (priority) {
+            priorityPassengers++;
+        }
+        else {
+            normalPassengers++;
+        }
+
+        cout << left
+             << setw(12) << passengers[i].getId()
+             << setw(20) << passengers[i].getName()
+             << setw(10) << age
+             << setw(15) << category
+             << setw(15) << (priority ? "Priority" : "Normal")
+             << fare << "\n";
+    }
+
+    cout << "\n========== SUMMARY ==========\n";
+    cout << "Total Passengers: " << passengerCount << "\n";
+    cout << "Children: " << children << "\n";
+    cout << "Senior Citizens: " << seniorCitizens << "\n";
+    cout << "Adults: " << adults << "\n";
+    cout << "Priority Passengers: " << priorityPassengers << "\n";
+    cout << "Normal Passengers: " << normalPassengers << "\n";
+    cout << "Half Fare Eligible: " << halfFarePassengers << "\n";
+    cout << "=============================\n";
 }
 };
 
