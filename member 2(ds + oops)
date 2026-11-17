@@ -35,3 +35,14 @@ public:
         }
         return -1;
     }
+  int addStop(const string &name) {
+        int found = findStop(name);
+        if (found != -1) {
+            return found;
+        }
+        if (stopCount == Max_Stops) {
+            return -1;
+        }
+        stopNames[stopCount] = name;
+        return stopCount++;
+    }
