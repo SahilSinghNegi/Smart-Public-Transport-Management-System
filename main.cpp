@@ -1680,6 +1680,540 @@ void generatePassengerReport() {
     cout << "Empty Buses              : " << emptyBuses << "\n";
     cout << "===================================\n";
 }
+
+// ============================================================
+// MEMBER 3 - ADVANCED PASSENGER MANAGEMENT MODULE
+// ============================================================
+
+class AdvancedPassengerModule {
+private:
+    PassengerDesk &desk;
+
+    struct Feedback {
+        int passengerId;
+        int rating;
+        string message;
+    };
+
+    struct Activity {
+        int passengerId;
+        string activityName;
+        string details;
+    };
+
+    Feedback feedbackList[200];
+    Activity activityList[500];
+
+    int feedbackCount = 0;
+    int activityCount = 0;
+
+    void addActivity(int id, const string &name,
+                     const string &details) {
+        if (activityCount >= 500)
+            return;
+
+        activityList[activityCount].passengerId = id;
+        activityList[activityCount].activityName = name;
+        activityList[activityCount].details = details;
+        activityCount++;
+    }
+
+    bool validPassenger(int id) {
+        return id >= 1 && id <= desk.getPassengerCount();
+    }
+
+    void printLine() {
+        cout << "============================================\n";
+    }
+
+public:
+    AdvancedPassengerModule(PassengerDesk &passengerDesk)
+        : desk(passengerDesk) {}
+
+    // 1. Search passenger using ID
+    void searchPassenger() {
+        printLine();
+        cout << "          PASSENGER SEARCH\n";
+        printLine();
+
+        int id = askNumber("Enter Passenger ID: ");
+
+        Passenger *p = desk.findPassenger(id);
+
+        if (p == nullptr) {
+            cout << "Passenger not found!\n";
+            return;
+        }
+
+        cout << "\nPassenger Found!\n";
+        cout << "ID: " << p->getId() << "\n";
+        cout << "Name: " << p->getName() << "\n";
+        cout << "Age: " << p->getAge() << "\n";
+
+        addActivity(id, "Passenger Search",
+                    "Passenger profile searched");
+
+        cout << "Search completed successfully.\n";
+    }
+
+    // 2. Display passenger profile
+    void displayProfile() {
+        printLine();
+        cout << "          PASSENGER PROFILE\n";
+        printLine();
+
+        int id = askNumber("Enter Passenger ID: ");
+
+        if (!validPassenger(id)) {
+            cout << "Invalid passenger ID!\n";
+            return;
+        }
+
+        Passenger *p = desk.findPassenger(id);
+
+        cout << "\nPassenger ID: " << p->getId();
+        cout << "\nPassenger Name: " << p->getName();
+        cout << "\nPassenger Age: " << p->getAge();
+
+        cout << "\nPassenger Category: ";
+
+        if (p->hasPriority())
+            cout << "Priority Passenger";
+        else if (p->isChildOrSenior())
+            cout << "Child/Senior Passenger";
+        else
+            cout << "Normal Passenger";
+
+        cout << "\nPriority Level: "
+             << p->priorityLevel() << "\n";
+
+        addActivity(id, "Profile Viewed",
+                    "Passenger profile displayed");
+    }
+
+    // 3. Display all passenger profiles
+    void displayAllPassengers() {
+        printLine();
+        cout << "          ALL PASSENGERS\n";
+        printLine();
+
+        int total = desk.getPassengerCount();
+
+        if (total == 0) {
+            cout << "No passengers registered.\n";
+            return;
+        }
+
+        for (int i = 1; i <= total; i++) {
+            Passenger *p = desk.findPassenger(i);
+
+            if (p == nullptr)
+                continue;
+
+            cout << "\nPassenger ID: " << p->getId();
+            cout << "\nName: " << p->getName();
+            cout << "\nAge: " << p->getAge();
+
+            cout << "\nCategory: ";
+
+            if (p->hasPriority())
+                cout << "Priority";
+            else if (p->isChildOrSenior())
+                cout << "Child/Senior";
+            else
+                cout << "Normal";
+
+            cout << "\n--------------------------------------------\n";
+        }
+
+        cout << "\nTotal Registered Passengers: " << total << "\n";
+    }
+
+    // 4. Passenger statistics
+    void passengerStatistics() {
+        printLine();
+        cout << "       PASSENGER STATISTICS\n";
+        printLine();
+
+        int total = desk.getPassengerCount();
+        int priority = 0;
+        int normal = 0;
+        int children = 0;
+        int senior = 0;
+
+        for (int i = 1; i <= total; i++) {
+            Passenger *p = desk.findPassenger(i);
+
+            if (p == nullptr)
+                continue;
+
+            if (p->hasPriority())
+                priority++;
+
+            if (p->getAge() <= 12)
+                children++;
+
+            if (p->getAge() >= 60)
+                senior++;
+
+            if (p->priorityLevel() == 0)
+                normal++;
+        }
+
+        cout << "Total Passengers: " << total << "\n";
+        cout << "Priority Passengers: " << priority << "\n";
+        cout << "Normal Passengers: " << normal << "\n";
+        cout << "Children: " << children << "\n";
+        cout << "Senior Citizens: " << senior << "\n";
+    }
+
+    // 5. Bus-wise waiting report
+    void waitingReport() {
+        printLine();
+        cout << "          WAITING REPORT\n";
+        printLine();
+
+        int grandTotal = 0;
+        int activeBuses = 0;
+        int emptyBuses = 0;
+
+        for (int bus = 1; bus <= Max_Buses; bus++) {
+            int count = desk.peopleWaiting(bus);
+
+            cout << "\nBus ID: " << bus;
+            cout << "\nWaiting Passengers: " << count;
+
+            if (count > 0) {
+                cout << "\nStatus: Active Waiting List";
+                activeBuses++;
+            } else {
+                cout << "\nStatus: Empty";
+                emptyBuses++;
+            }
+
+            grandTotal += count;
+            cout << "\n--------------------------------------------\n";
+        }
+
+        cout << "\nTotal Waiting Passengers: " << grandTotal;
+        cout << "\nBuses With Passengers: " << activeBuses;
+        cout << "\nEmpty Buses: " << emptyBuses << "\n";
+    }
+
+    // 6. Add passenger feedback
+    void addFeedback() {
+        printLine();
+        cout << "          PASSENGER FEEDBACK\n";
+        printLine();
+
+        if (feedbackCount >= 200) {
+            cout << "Feedback storage is full!\n";
+            return;
+        }
+
+        int id = askNumber("Enter Passenger ID: ");
+
+        if (!validPassenger(id)) {
+            cout << "Invalid passenger ID!\n";
+            return;
+        }
+
+        int rating = askNumber("Enter Rating (1-5): ");
+
+        if (rating < 1 || rating > 5) {
+            cout << "Rating must be between 1 and 5.\n";
+            return;
+        }
+
+        string message = askText("Enter Feedback: ");
+
+        if (message.empty()) {
+            cout << "Feedback cannot be empty.\n";
+            return;
+        }
+
+        feedbackList[feedbackCount].passengerId = id;
+        feedbackList[feedbackCount].rating = rating;
+        feedbackList[feedbackCount].message = message;
+
+        feedbackCount++;
+
+        addActivity(id, "Feedback Added",
+                    "Passenger submitted feedback");
+
+        cout << "\nFeedback submitted successfully!\n";
+    }
+
+    // 7. Display all feedback
+    void displayFeedback() {
+        printLine();
+        cout << "          FEEDBACK RECORDS\n";
+        printLine();
+
+        if (feedbackCount == 0) {
+            cout << "No feedback available.\n";
+            return;
+        }
+
+        for (int i = 0; i < feedbackCount; i++) {
+            cout << "\nFeedback Number: " << i + 1;
+            cout << "\nPassenger ID: "
+                 << feedbackList[i].passengerId;
+            cout << "\nRating: "
+                 << feedbackList[i].rating << "/5";
+            cout << "\nMessage: "
+                 << feedbackList[i].message;
+
+            cout << "\n--------------------------------------------\n";
+        }
+    }
+
+    // 8. Calculate average feedback rating
+    void feedbackStatistics() {
+        printLine();
+        cout << "       FEEDBACK STATISTICS\n";
+        printLine();
+
+        if (feedbackCount == 0) {
+            cout << "No feedback records available.\n";
+            return;
+        }
+
+        int totalRating = 0;
+        int excellent = 0;
+        int average = 0;
+        int poor = 0;
+
+        for (int i = 0; i < feedbackCount; i++) {
+            totalRating += feedbackList[i].rating;
+
+            if (feedbackList[i].rating >= 4)
+                excellent++;
+            else if (feedbackList[i].rating == 3)
+                average++;
+            else
+                poor++;
+        }
+
+        double avg = (double)totalRating / feedbackCount;
+
+        cout << "Total Feedback: " << feedbackCount << "\n";
+        cout << "Average Rating: " << avg << "/5\n";
+        cout << "Positive Feedback: " << excellent << "\n";
+        cout << "Average Feedback: " << average << "\n";
+        cout << "Low Ratings: " << poor << "\n";
+    }
+
+    // 9. Passenger activity history
+    void displayActivityHistory() {
+        printLine();
+        cout << "       PASSENGER ACTIVITY HISTORY\n";
+        printLine();
+
+        int id = askNumber("Enter Passenger ID: ");
+
+        if (!validPassenger(id)) {
+            cout << "Invalid passenger ID!\n";
+            return;
+        }
+
+        bool found = false;
+
+        for (int i = 0; i < activityCount; i++) {
+            if (activityList[i].passengerId == id) {
+                cout << "\nActivity: "
+                     << activityList[i].activityName;
+
+                cout << "\nDetails: "
+                     << activityList[i].details;
+
+                cout << "\n--------------------------------------------\n";
+
+                found = true;
+            }
+        }
+
+        if (!found)
+            cout << "No activity history available.\n";
+    }
+
+    // 10. Save feedback to file
+    void saveFeedback() {
+        ofstream file("passenger_feedback.txt");
+
+        if (!file) {
+            cout << "Unable to open feedback file.\n";
+            return;
+        }
+
+        for (int i = 0; i < feedbackCount; i++) {
+            file << feedbackList[i].passengerId << ","
+                 << feedbackList[i].rating << ","
+                 << feedbackList[i].message << "\n";
+        }
+
+        file.close();
+
+        cout << "Feedback saved successfully!\n";
+    }
+
+    // 11. Export passenger report
+    void exportPassengerReport() {
+        ofstream file("passenger_report.txt");
+
+        if (!file) {
+            cout << "Unable to create report file.\n";
+            return;
+        }
+
+        file << "SMART PUBLIC TRANSPORT SYSTEM\n";
+        file << "PASSENGER MANAGEMENT REPORT\n";
+        file << "====================================\n";
+
+        for (int i = 1; i <= desk.getPassengerCount(); i++) {
+            Passenger *p = desk.findPassenger(i);
+
+            if (p == nullptr)
+                continue;
+
+            file << "\nPassenger ID: " << p->getId();
+            file << "\nName: " << p->getName();
+            file << "\nAge: " << p->getAge();
+
+            file << "\nCategory: ";
+
+            if (p->hasPriority())
+                file << "Priority";
+            else if (p->isChildOrSenior())
+                file << "Child/Senior";
+            else
+                file << "Normal";
+
+            file << "\n------------------------------------\n";
+        }
+
+        file.close();
+
+        cout << "Passenger report exported successfully!\n";
+    }
+
+    // 12. Display module dashboard
+    void dashboard() {
+        printLine();
+        cout << "       PASSENGER MANAGEMENT DASHBOARD\n";
+        printLine();
+
+        cout << "Registered Passengers: "
+             << desk.getPassengerCount() << "\n";
+
+        cout << "Stored Feedback: "
+             << feedbackCount << "\n";
+
+        cout << "Recorded Activities: "
+             << activityCount << "\n";
+
+        int waiting = 0;
+
+        for (int bus = 1; bus <= Max_Buses; bus++)
+            waiting += desk.peopleWaiting(bus);
+
+        cout << "Total Waiting Passengers: "
+             << waiting << "\n";
+
+        printLine();
+    }
+
+    // 13. Main module menu
+    void run() {
+        int choice;
+
+        do {
+            printLine();
+            cout << "     ADVANCED PASSENGER MANAGEMENT\n";
+            printLine();
+
+            cout << "1. Search Passenger\n";
+            cout << "2. View Passenger Profile\n";
+            cout << "3. Display All Passengers\n";
+            cout << "4. Passenger Statistics\n";
+            cout << "5. Bus Waiting Report\n";
+            cout << "6. Submit Passenger Feedback\n";
+            cout << "7. View All Feedback\n";
+            cout << "8. Feedback Statistics\n";
+            cout << "9. Passenger Activity History\n";
+            cout << "10. Save Feedback\n";
+            cout << "11. Export Passenger Report\n";
+            cout << "12. Dashboard\n";
+            cout << "0. Return to Main Menu\n";
+
+            printLine();
+
+            choice = askNumber("Enter your choice: ");
+
+            switch (choice) {
+                case 1:
+                    searchPassenger();
+                    break;
+
+                case 2:
+                    displayProfile();
+                    break;
+
+                case 3:
+                    displayAllPassengers();
+                    break;
+
+                case 4:
+                    passengerStatistics();
+                    break;
+
+                case 5:
+                    waitingReport();
+                    break;
+
+                case 6:
+                    addFeedback();
+                    break;
+
+                case 7:
+                    displayFeedback();
+                    break;
+
+                case 8:
+                    feedbackStatistics();
+                    break;
+
+                case 9:
+                    displayActivityHistory();
+                    break;
+
+                case 10:
+                    saveFeedback();
+                    break;
+
+                case 11:
+                    exportPassengerReport();
+                    break;
+
+                case 12:
+                    dashboard();
+                    break;
+
+                case 0:
+                    cout << "Returning to main menu...\n";
+                    break;
+
+                default:
+                    cout << "Invalid choice! Try again.\n";
+            }
+
+            if (choice != 0)
+                pauseScreen();
+
+        } while (choice != 0);
+    }
+};
+
 };
 
 // MEMBER 4 : SCHEDULE, TICKET & SYSTEM INTEGRATION
