@@ -2212,9 +2212,639 @@ public:
 
         } while (choice != 0);
     }
+
+// ============================================================
+// MEMBER 3 - ADVANCED PASSENGER MANAGEMENT
+// PART 1: PASSENGER PROFILE AND RECORD MANAGEMENT
+// ============================================================
+
+class AdvancedPassengerManager {
+private:
+
+    PassengerDesk &desk;
+
+    struct PassengerLog {
+        int passengerId;
+        string action;
+        string description;
+    };
+
+    PassengerLog logs[500];
+    int logCount = 0;
+
+    void addLog(int id, const string &action,
+                const string &description) {
+
+        if (logCount >= 500)
+            return;
+
+        logs[logCount].passengerId = id;
+        logs[logCount].action = action;
+        logs[logCount].description = description;
+
+        logCount++;
+    }
+
+    bool validId(int id) const {
+        return id >= 1 &&
+               id <= desk.getPassengerCount();
+    }
+
+    void heading(const string &title) {
+        cout << "\n";
+        cout << "============================================\n";
+        cout << "       " << title << "\n";
+        cout << "============================================\n";
+    }
+
+    void showCategory(const Passenger &p) {
+        if (p.hasPriority())
+            cout << "Priority Passenger";
+        else if (p.getAge() <= 12)
+            cout << "Child Passenger";
+        else if (p.getAge() >= 60)
+            cout << "Senior Citizen";
+        else
+            cout << "Normal Passenger";
+    }
+
+public:
+
+    AdvancedPassengerManager(PassengerDesk &passengerDesk)
+        : desk(passengerDesk) {}
+
+    // --------------------------------------------------------
+    // 1. SEARCH PASSENGER
+    // --------------------------------------------------------
+
+    void searchPassenger() {
+
+        heading("SEARCH PASSENGER");
+
+        int id = askNumber("Enter Passenger ID: ");
+
+        if (!validId(id)) {
+            cout << "Passenger does not exist!\n";
+            return;
+        }
+
+        Passenger *p = desk.findPassenger(id);
+
+        if (p == nullptr) {
+            cout << "Passenger record not found!\n";
+            return;
+        }
+
+        cout << "\nPassenger Found Successfully!\n";
+
+        cout << "Passenger ID   : " << p->getId() << "\n";
+        cout << "Passenger Name : " << p->getName() << "\n";
+        cout << "Passenger Age  : " << p->getAge() << "\n";
+
+        cout << "Category       : ";
+        showCategory(*p);
+
+        cout << "\nPriority Level : "
+             << p->priorityLevel() << "\n";
+
+        addLog(id, "SEARCH",
+               "Passenger searched using ID");
+
+    }
+
+    // --------------------------------------------------------
+    // 2. DISPLAY PASSENGER PROFILE
+    // --------------------------------------------------------
+
+    void displayPassengerProfile() {
+
+        heading("PASSENGER PROFILE");
+
+        int id = askNumber("Enter Passenger ID: ");
+
+        if (!validId(id)) {
+            cout << "Invalid Passenger ID!\n";
+            return;
+        }
+
+        Passenger *p = desk.findPassenger(id);
+
+        if (p == nullptr)
+            return;
+
+        cout << "\n";
+        cout << "Passenger ID       : " << p->getId() << "\n";
+        cout << "Passenger Name     : " << p->getName() << "\n";
+        cout << "Passenger Age      : " << p->getAge() << "\n";
+
+        cout << "Passenger Category : ";
+        showCategory(*p);
+
+        cout << "\n";
+        cout << "Priority Level     : "
+             << p->priorityLevel() << "\n";
+
+        cout << "Half Fare Eligible : ";
+
+        if (p->getsHalfFare())
+            cout << "Yes\n";
+        else
+            cout << "No\n";
+
+        addLog(id, "PROFILE",
+               "Passenger profile viewed");
+
+    }
+
+    // --------------------------------------------------------
+    // 3. DISPLAY ALL PASSENGERS
+    // --------------------------------------------------------
+
+    void displayAllPassengers() {
+
+        heading("ALL REGISTERED PASSENGERS");
+
+        int total = desk.getPassengerCount();
+
+        if (total == 0) {
+            cout << "No passengers registered yet.\n";
+            return;
+        }
+
+        for (int i = 1; i <= total; i++) {
+
+            Passenger *p = desk.findPassenger(i);
+
+            if (p == nullptr)
+                continue;
+
+            cout << "\nPassenger ID : " << p->getId();
+            cout << "\nName         : " << p->getName();
+            cout << "\nAge          : " << p->getAge();
+
+            cout << "\nCategory     : ";
+            showCategory(*p);
+
+            cout << "\nPriority     : "
+                 << p->priorityLevel();
+
+            cout << "\n--------------------------------------------\n";
+        }
+
+        cout << "\nTotal Passengers: " << total << "\n";
+
+    }
+
+    // --------------------------------------------------------
+    // 4. PASSENGER STATISTICS
+    // --------------------------------------------------------
+
+    void passengerStatistics() {
+
+        heading("PASSENGER STATISTICS");
+
+        int total = desk.getPassengerCount();
+
+        int priority = 0;
+        int normal = 0;
+        int children = 0;
+        int senior = 0;
+        int halfFare = 0;
+
+        for (int i = 1; i <= total; i++) {
+
+            Passenger *p = desk.findPassenger(i);
+
+            if (p == nullptr)
+                continue;
+
+            if (p->hasPriority())
+                priority++;
+
+            if (p->getAge() <= 12)
+                children++;
+
+            if (p->getAge() >= 60)
+                senior++;
+
+            if (p->priorityLevel() == 0)
+                normal++;
+
+            if (p->getsHalfFare())
+                halfFare++;
+        }
+
+        cout << "Total Passengers       : " << total << "\n";
+        cout << "Priority Passengers    : " << priority << "\n";
+        cout << "Normal Passengers      : " << normal << "\n";
+        cout << "Children               : " << children << "\n";
+        cout << "Senior Citizens        : " << senior << "\n";
+        cout << "Half Fare Eligible     : " << halfFare << "\n";
+
+        if (total > 0) {
+            double percentage =
+                (double)priority / total * 100;
+
+            cout << "Priority Percentage    : "
+                 << percentage << "%\n";
+        }
+
+    }
+
+    // --------------------------------------------------------
+    // 5. AGE CATEGORY REPORT
+    // --------------------------------------------------------
+
+    void ageCategoryReport() {
+
+        heading("AGE CATEGORY REPORT");
+
+        int children = 0;
+        int teenagers = 0;
+        int adults = 0;
+        int senior = 0;
+
+        for (int i = 1;
+             i <= desk.getPassengerCount(); i++) {
+
+            Passenger *p = desk.findPassenger(i);
+
+            if (p == nullptr)
+                continue;
+
+            int age = p->getAge();
+
+            if (age <= 12)
+                children++;
+            else if (age <= 19)
+                teenagers++;
+            else if (age < 60)
+                adults++;
+            else
+                senior++;
+        }
+
+        cout << "Children (0-12)       : " << children << "\n";
+        cout << "Teenagers (13-19)     : " << teenagers << "\n";
+        cout << "Adults (20-59)        : " << adults << "\n";
+        cout << "Senior Citizens (60+) : " << senior << "\n";
+
+    }
+
+    // --------------------------------------------------------
+    // 6. PRIORITY PASSENGER REPORT
+    // --------------------------------------------------------
+
+    void priorityPassengerReport() {
+
+        heading("PRIORITY PASSENGER REPORT");
+
+        int count = 0;
+
+        for (int i = 1;
+             i <= desk.getPassengerCount(); i++) {
+
+            Passenger *p = desk.findPassenger(i);
+
+            if (p == nullptr)
+                continue;
+
+            if (p->priorityLevel() > 0) {
+
+                cout << "\nPassenger ID: "
+                     << p->getId();
+
+                cout << "\nName: "
+                     << p->getName();
+
+                cout << "\nAge: "
+                     << p->getAge();
+
+                cout << "\nPriority Level: "
+                     << p->priorityLevel();
+
+                cout << "\n-----------------------------------\n";
+
+                count++;
+            }
+        }
+
+        cout << "\nTotal Priority Category Passengers: "
+             << count << "\n";
+
+    }
+
+    // --------------------------------------------------------
+    // 7. PASSENGER NAME SEARCH
+    // --------------------------------------------------------
+
+    void searchPassengerByName() {
+
+        heading("SEARCH PASSENGER BY NAME");
+
+        string searchName =
+            askText("Enter Passenger Name: ");
+
+        if (searchName.empty()) {
+            cout << "Name cannot be empty!\n";
+            return;
+        }
+
+        bool found = false;
+
+        for (int i = 1;
+             i <= desk.getPassengerCount(); i++) {
+
+            Passenger *p = desk.findPassenger(i);
+
+            if (p == nullptr)
+                continue;
+
+            if (p->getName().find(searchName)
+                != string::npos) {
+
+                cout << "\nPassenger ID: "
+                     << p->getId();
+
+                cout << "\nName: "
+                     << p->getName();
+
+                cout << "\nAge: "
+                     << p->getAge();
+
+                cout << "\nCategory: ";
+                showCategory(*p);
+
+                cout << "\n-----------------------------------\n";
+
+                found = true;
+
+                addLog(p->getId(), "NAME SEARCH",
+                       "Passenger found by name");
+            }
+        }
+
+        if (!found)
+            cout << "No matching passenger found.\n";
+
+    }
+
+    // --------------------------------------------------------
+    // 8. DISPLAY PASSENGER ACTIVITY
+    // --------------------------------------------------------
+
+    void displayPassengerActivity() {
+
+        heading("PASSENGER ACTIVITY HISTORY");
+
+        int id = askNumber("Enter Passenger ID: ");
+
+        if (!validId(id)) {
+            cout << "Invalid Passenger ID!\n";
+            return;
+        }
+
+        bool found = false;
+
+        for (int i = 0; i < logCount; i++) {
+
+            if (logs[i].passengerId == id) {
+
+                cout << "\nActivity: "
+                     << logs[i].action;
+
+                cout << "\nDescription: "
+                     << logs[i].description;
+
+                cout << "\n-----------------------------------\n";
+
+                found = true;
+            }
+        }
+
+        if (!found)
+            cout << "No activity recorded for this passenger.\n";
+
+    }
+
+    // --------------------------------------------------------
+    // 9. DISPLAY ALL ACTIVITY
+    // --------------------------------------------------------
+
+    void displayAllActivity() {
+
+        heading("COMPLETE ACTIVITY LOG");
+
+        if (logCount == 0) {
+            cout << "No activity available.\n";
+            return;
+        }
+
+        for (int i = 0; i < logCount; i++) {
+
+            cout << "\nRecord Number: " << i + 1;
+
+            cout << "\nPassenger ID: "
+                 << logs[i].passengerId;
+
+            cout << "\nAction: "
+                 << logs[i].action;
+
+            cout << "\nDescription: "
+                 << logs[i].description;
+
+            cout << "\n-----------------------------------\n";
+        }
+
+    }
+
+    // --------------------------------------------------------
+    // 10. EXPORT PASSENGER REPORT
+    // --------------------------------------------------------
+
+    void exportPassengerReport() {
+
+        heading("EXPORT PASSENGER REPORT");
+
+        ofstream file("advanced_passenger_report.txt");
+
+        if (!file) {
+            cout << "Unable to create report file!\n";
+            return;
+        }
+
+        file << "SMART PUBLIC TRANSPORT SYSTEM\n";
+        file << "ADVANCED PASSENGER REPORT\n";
+        file << "====================================\n";
+
+        for (int i = 1;
+             i <= desk.getPassengerCount(); i++) {
+
+            Passenger *p = desk.findPassenger(i);
+
+            if (p == nullptr)
+                continue;
+
+            file << "\nPassenger ID: "
+                 << p->getId();
+
+            file << "\nName: "
+                 << p->getName();
+
+            file << "\nAge: "
+                 << p->getAge();
+
+            file << "\nPriority Level: "
+                 << p->priorityLevel();
+
+            file << "\nHalf Fare Eligible: "
+                 << (p->getsHalfFare() ? "Yes" : "No");
+
+            file << "\n------------------------------------\n";
+        }
+
+        file.close();
+
+        cout << "Report exported successfully!\n";
+        cout << "File: advanced_passenger_report.txt\n";
+
+    }
+
+    // --------------------------------------------------------
+    // 11. PASSENGER DASHBOARD
+    // --------------------------------------------------------
+
+    void passengerDashboard() {
+
+        heading("PASSENGER MANAGEMENT DASHBOARD");
+
+        int total = desk.getPassengerCount();
+        int priority = 0;
+        int halfFare = 0;
+
+        for (int i = 1; i <= total; i++) {
+
+            Passenger *p = desk.findPassenger(i);
+
+            if (p == nullptr)
+                continue;
+
+            if (p->hasPriority())
+                priority++;
+
+            if (p->getsHalfFare())
+                halfFare++;
+        }
+
+        int waiting = 0;
+
+        for (int bus = 1; bus <= Max_Buses; bus++) {
+            waiting += desk.peopleWaiting(bus);
+        }
+
+        cout << "\nRegistered Passengers : " << total;
+        cout << "\nPriority Passengers   : " << priority;
+        cout << "\nHalf Fare Passengers  : " << halfFare;
+        cout << "\nWaiting Requests      : " << waiting;
+        cout << "\nActivity Records      : " << logCount;
+
+        cout << "\n\nDashboard generated successfully.\n";
+
+    }
+
+    // --------------------------------------------------------
+    // 12. PASSENGER MANAGEMENT MENU
+    // --------------------------------------------------------
+
+    void run() {
+
+        int choice;
+
+        do {
+
+            heading("ADVANCED PASSENGER MANAGEMENT");
+
+            cout << "1. Search Passenger by ID\n";
+            cout << "2. Display Passenger Profile\n";
+            cout << "3. Display All Passengers\n";
+            cout << "4. Passenger Statistics\n";
+            cout << "5. Age Category Report\n";
+            cout << "6. Priority Passenger Report\n";
+            cout << "7. Search Passenger by Name\n";
+            cout << "8. Passenger Activity History\n";
+            cout << "9. Display All Activities\n";
+            cout << "10. Export Passenger Report\n";
+            cout << "11. Passenger Dashboard\n";
+            cout << "0. Return to Main Menu\n";
+
+            cout << "\nEnter Choice: ";
+
+            choice = askNumber("");
+
+            switch (choice) {
+
+                case 1:
+                    searchPassenger();
+                    break;
+
+                case 2:
+                    displayPassengerProfile();
+                    break;
+
+                case 3:
+                    displayAllPassengers();
+                    break;
+
+                case 4:
+                    passengerStatistics();
+                    break;
+
+                case 5:
+                    ageCategoryReport();
+                    break;
+
+                case 6:
+                    priorityPassengerReport();
+                    break;
+
+                case 7:
+                    searchPassengerByName();
+                    break;
+
+                case 8:
+                    displayPassengerActivity();
+                    break;
+
+                case 9:
+                    displayAllActivity();
+                    break;
+
+                case 10:
+                    exportPassengerReport();
+                    break;
+
+                case 11:
+                    passengerDashboard();
+                    break;
+
+                case 0:
+                    cout << "Returning to main menu...\n";
+                    break;
+
+                default:
+                    cout << "Invalid choice!\n";
+            }
+
+            if (choice != 0)
+                pauseScreen();
+
+        } while (choice != 0);
+
+    }
 };
 
 };
+
 
 // MEMBER 4 : SCHEDULE, TICKET & SYSTEM INTEGRATION
 struct Trip {
