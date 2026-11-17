@@ -1,1 +1,21 @@
+#ifndef ROUTE_NAVIGATION_H
+#define ROUTE_NAVIGATION_H
 
+#include "common.h"
+
+// MEMBER 2 : ROUTE & NAVIGATION MANAGEMENT
+class RoadMap {
+    string stopNames[Max_Stops];
+    int stopCount;
+    int roadKm[Max_Stops][Max_Stops];
+    int roadMinutes[Max_Stops][Max_Stops];
+
+public:
+    RoadMap() : stopCount(0) {
+        for (int a = 0; a < Max_Stops; a++) {
+            for (int b = 0; b < Max_Stops; b++) {
+                roadKm[a][b] = 0;
+                roadMinutes[a][b] = 0;
+            }
+        }
+    }
