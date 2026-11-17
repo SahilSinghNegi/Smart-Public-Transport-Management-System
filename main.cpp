@@ -1219,6 +1219,7 @@ class PassengerDesk {
     WaitingList waitingLists[Max_Buses];
     int passengerCount = 0;
     int arrivalCounter = 0;
+int priorityStreak[Max_Buses] = {};
 bool isWaiting[Max_Passengers + 1][Max_Buses + 1] = {};
 
 public:
@@ -1322,6 +1323,39 @@ bool cancelWaitingRequest(int busId, int passengerId) {
     if (busId < 1 || busId > Max_Buses ||
         passenger.getId() < 1 || passenger.getId() > passengerCount) {
         return -1;
+        int getWaitingPosition(int busId, int passengerId) {
+
+    if (busId < 1 || busId > Max_Buses ||
+        passengerId < 1 || passengerId > passengerCount) {
+        return -1;
+    }
+
+    if (!isWaiting[passengerId][busId]) {
+        return -1;
+    }
+
+    WaitingList &list = waitingLists[busId - 1];
+
+    int position = 1;
+
+    // Check priority queue
+    for (int i = 0; i < list.priorityQueue.size(); i++) {
+        if (list.priorityQueue.getPassengerId(i) == passengerId) {
+            return position;
+        }
+        position++;
+    }
+
+    // Check normal queue
+    for (int i = 0; i < list.normalQueue.size(); i++) {
+        if (list.normalQueue.getPassengerId(i) == passengerId) {
+            return position;
+        }
+        position++;
+    }
+
+    return -1;
+}
     }
 
     if (isWaiting[passenger.getId()][busId]) {
