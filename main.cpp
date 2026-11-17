@@ -928,6 +928,42 @@ public:
             cout << "\n";
         }
     }
+    
+void showReachableStops(const string &name) const {
+    int start = findStop(name);
+
+    if (start == -1) {
+        cout << "  Stop not found.\n";
+        return;
+    }
+
+    bool visited[Max_Stops] = {};
+    int queue[Max_Stops];
+    int front = 0, rear = 0;
+
+    queue[rear++] = start;
+    visited[start] = true;
+
+    cout << "\n  Stops reachable from " << name << ":\n";
+
+    while (front < rear) {
+        int current = queue[front++];
+
+        for (int next = 0; next < stopCount; next++) {
+            if (roadKm[current][next] > 0 && !visited[next]) {
+                visited[next] = true;
+                queue[rear++] = next;
+
+                cout << "  -> " << stopNames[next] << "\n";
+            }
+        }
+    }
+
+    if (rear == 1) {
+        cout << "  No other stops are reachable.\n";
+    }
+}
+
 
     void saveRoadMap() const
     {
