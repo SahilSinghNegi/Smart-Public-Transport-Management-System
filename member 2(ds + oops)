@@ -276,4 +276,41 @@ void showReachableStops(const string &name) const {
         cout << "  No other stops are reachable.\n";
     }
 }
+ int getDirectDistance(const string &nameA, const string &nameB) const {
+        int a = findStop(nameA);
+        int b = findStop(nameB);
+
+        if (a == -1 || b == -1 || a == b || roadKm[a][b] == 0) {
+            return -1;
+        }
+
+        return roadKm[a][b];
+    }
+    int getDirectTime(const string &nameA, const string &nameB) const {
+        int a = findStop(nameA);
+        int b = findStop(nameB);
+
+        if (a == -1 || b == -1 || a == b || roadMinutes[a][b] == 0) {
+            return -1;
+        }
+
+        return roadMinutes[a][b];
+    }
+    
+     bool removeRoad(const string &nameA, const string &nameB) {
+        int a = findStop(nameA);
+        int b = findStop(nameB);
+
+        if (a == -1 || b == -1 || a == b) {
+            return false;
+        }
+
+        if (roadKm[a][b] == 0) {
+            return false;
+        }
+        roadKm[a][b] = roadKm[b][a] = 0;
+        roadMinutes[a][b] = roadMinutes[b][a] = 0;
+
+        return true;
+    }
 #endif
