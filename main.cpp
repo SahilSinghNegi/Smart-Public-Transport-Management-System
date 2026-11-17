@@ -1490,6 +1490,70 @@ void generatePassengerReport() {
     cout << "Half Fare Eligible: " << halfFarePassengers << "\n";
     cout << "=============================\n";
 }
+    int getWaitingPosition(int busId, int passengerId) {
+
+    if (busId < 1 || busId > Max_Buses ||
+        passengerId < 1 || passengerId > passengerCount) {
+        return -1;
+    }
+
+    if (!isWaiting[passengerId][busId]) {
+        return -1;
+    }
+
+    WaitingList &list = waitingLists[busId - 1];
+
+    Passenger *currentPassenger = findPassenger(passengerId);
+
+    if (currentPassenger == nullptr) {
+        return -1;
+    }
+
+    int position = 1;
+
+    // Check priority queue
+    if (currentPassenger->priorityLevel() > 0) {
+
+        for (int i = 0; i < list.priorityQueue.size(); i++) {
+
+            if (list.priorityQueue.getPassengerId(i) == passengerId) {
+                return position;
+            }
+
+            position++;
+        }
+    }
+
+    // Check normal queue
+    else {
+
+        for (int i = 0; i < list.normalQueue.size(); i++) {
+
+            if (list.normalQueue.getPassengerId(i) == passengerId) {
+                return position;
+            }
+
+            position++;
+        }
+    }
+
+    return -1;
+}
+    int getTotalWaitingPassengers(int busId) {
+
+    if (busId < 1 || busId > Max_Buses) {
+        return -1;
+    }
+
+    WaitingList &list = waitingLists[busId - 1];
+
+    int priorityCount = list.priorityQueue.size();
+    int normalCount = list.normalQueue.size();
+
+    int totalPassengers = priorityCount + normalCount;
+
+    return totalPassengers;
+}
 };
 
 // MEMBER 4 : SCHEDULE, TICKET & SYSTEM INTEGRATION
