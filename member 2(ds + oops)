@@ -19,3 +19,19 @@ public:
             }
         }
     }
+ int getStopCount() const { 
+        return stopCount; 
+    }
+    
+    string stopName(int stop) const { 
+        return stopNames[stop]; 
+    }
+
+    int findStop(const string &name) const {
+        for (int i = 0; i < stopCount; i++) {
+            if (stopNames[i] == name) {
+                return i;
+            }
+        }
+        return -1;
+    }
