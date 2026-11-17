@@ -77,6 +77,11 @@ public:
             cout << "  Road not found or invalid details.\n";
         }
     }
+     void showConnectionsAction() {
+        string name = askText("Enter stop name: ");
+        roadMap.showConnections(name);
+    }
+
 
     int findBestRoute(int start, int end, int path[], int &pathLength, bool useTime) const {
         if (start < 0 || end < 0) {
