@@ -148,6 +148,7 @@ public:
         }
     }
 };
+    
     void showConnections(const string &name) const {
         int stop = findStop(name);
 
@@ -173,5 +174,71 @@ public:
         if (!found) {
             cout << "  No connected roads.\n";
         }
+    }
+    int findBestRoute(int start, int end, int path[], int &pathLength, bool useTime) const {
+        if (start < 0 || end < 0) {
+            return -1;
+        }
+        
+        int bestDistance[Max_Stops];
+        int cameFrom[Max_Stops];
+        bool alreadyVisited[Max_Stops];
+        
+        for (int i = 0; i < stopCount; i++) {
+            bestDistance[i] = Infinite_Distance;
+            cameFrom[i] = -1;
+            alreadyVisited[i] = false;
+        }
+        
+        bestDistance[start] = 0;
+
+        for (int round = 0; round < stopCount; round++) {
+            int current = -1;
+            for (int i = 0; i < stopCount; i++) {
+                if (!alreadyVisited[i] && bestDistance[i] < Infinite_Distance &&
+                    (current == -1 || bestDistance[i] < bestDistance[current])) {
+                    current = i;
+                }
+            }
+            
+            if (current == -1 || current == end) {
+                break;
+            }
+            
+            alreadyVisited[current] = true;
+
+            for (int next = 0; next < stopCount; next++) {
+                int roadCost;
+                if (useTime) {
+                    roadCost = roadMinutes[current][next];
+                } else {
+                    roadCost = roadKm[current][next];
+                }
+                
+                if (roadCost > 0 && !alreadyVisited[next] &&
+                    bestDistance[current] + roadCost < bestDistance[next]) {
+                    bestDistance[next] = bestDistance[current] + roadCost;
+                    cameFrom[next] = current;
+                }
+            }
+        }
+
+        if (bestDistance[end] == Infinite_Distance) {
+            return -1;
+        }
+
+        int backwards[Max_Stops];
+        int length = 0;
+        
+        for (int stop = end; stop != -1; stop = cameFrom[stop]) {
+            backwards[length++] = stop;
+        }
+        
+        pathLength = length;
+        for (int i = 0; i < length; i++) {
+            path[i] = backwards[length - 1 - i];
+        }
+        
+        return bestDistance[end];
     }
 #endif
