@@ -1554,6 +1554,96 @@ void generatePassengerReport() {
 
     return totalPassengers;
 }
+    void displayAllWaitingSummary() {
+    cout << "\n========== COMPLETE WAITING REPORT ==========\n";
+
+    int grandTotal = 0;
+    int busesWithPassengers = 0;
+    int emptyBuses = 0;
+
+    for (int busId = 1; busId <= Max_Buses; busId++) {
+
+        WaitingList &list = waitingLists[busId - 1];
+
+        int priorityCount = list.priorityQueue.size();
+        int normalCount = list.normalQueue.size();
+
+        int totalCount = priorityCount + normalCount;
+
+        cout << "\n-----------------------------------\n";
+        cout << "Bus ID: " << busId << "\n";
+
+        cout << "Priority Queue: " << priorityCount << "\n";
+        cout << "Normal Queue  : " << normalCount << "\n";
+        cout << "Total Waiting : " << totalCount << "\n";
+
+        if (totalCount > 0) {
+            cout << "Status: Passengers Waiting\n";
+            busesWithPassengers++;
+        }
+        else {
+            cout << "Status: No Passengers Waiting\n";
+            emptyBuses++;
+        }
+
+        if (totalCount >= Queue_Size) {
+            cout << "Warning: Waiting Queue is Full!\n";
+        }
+
+        grandTotal += totalCount;
+    }
+
+    cout << "\n========== FINAL SUMMARY ==========\n";
+    cout << "Total Waiting Passengers : " << grandTotal << "\n";
+    cout << "Buses With Passengers    : " << busesWithPassengers << "\n";
+    cout << "Empty Buses              : " << emptyBuses << "\n";
+    cout << "===================================\n";
+}
+    void displayAllWaitingSummary() {
+    cout << "\n========== COMPLETE WAITING REPORT ==========\n";
+
+    int grandTotal = 0;
+    int busesWithPassengers = 0;
+    int emptyBuses = 0;
+
+    for (int busId = 1; busId <= Max_Buses; busId++) {
+
+        WaitingList &list = waitingLists[busId - 1];
+
+        int priorityCount = list.priorityQueue.size();
+        int normalCount = list.normalQueue.size();
+
+        int totalCount = priorityCount + normalCount;
+
+        cout << "\n-----------------------------------\n";
+        cout << "Bus ID: " << busId << "\n";
+
+        cout << "Priority Queue: " << priorityCount << "\n";
+        cout << "Normal Queue  : " << normalCount << "\n";
+        cout << "Total Waiting : " << totalCount << "\n";
+
+        if (totalCount > 0) {
+            cout << "Status: Passengers Waiting\n";
+            busesWithPassengers++;
+        }
+        else {
+            cout << "Status: No Passengers Waiting\n";
+            emptyBuses++;
+        }
+
+        if (totalCount >= Queue_Size) {
+            cout << "Warning: Waiting Queue is Full!\n";
+        }
+
+        grandTotal += totalCount;
+    }
+
+    cout << "\n========== FINAL SUMMARY ==========\n";
+    cout << "Total Waiting Passengers : " << grandTotal << "\n";
+    cout << "Buses With Passengers    : " << busesWithPassengers << "\n";
+    cout << "Empty Buses              : " << emptyBuses << "\n";
+    cout << "===================================\n";
+}
 };
 
 // MEMBER 4 : SCHEDULE, TICKET & SYSTEM INTEGRATION
