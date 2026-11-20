@@ -3276,17 +3276,22 @@ public:
             cout << "  Invalid plate or seat count (1-200).\n";
             return;
         }
-        
-        int id = busManager.addBus(number, seats);
-        if (id == -1) {
-            cout << "  This number plate already exists.\n";
-        } else if (id == -2) {
-            cout << "  No space for more buses.\n";
-        } else {
-            cout << "  Bus added with ID " << id << " (use option 5 to give it a route).\n";
-        }
-    }
+  int id = busManager.addBus(number, seats);
 
+if (id == -1) {
+    cout << "  This number plate already exists.\n";
+}
+else if (id == -2) {
+    cout << "  No space for more buses.\n";
+}
+else if (id < 0) {
+    cout << "  Invalid bus number or seating capacity.\n";
+}
+else {
+    cout << "  Bus added with ID " << id
+         << " (use option 5 to give it a route).\n";
+}
+    }
     void searchBusAction() {
         string typed = askText("Type a bus ID or a number plate: ");
         int typedNumber;
