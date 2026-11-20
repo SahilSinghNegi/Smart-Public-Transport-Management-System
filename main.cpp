@@ -1,4 +1,4 @@
-/*
+    /*
  * Smart Public Transport Management and Route Optimization System
  * 
  * MEMBER 1 - Bus & Vehicle Management
@@ -461,12 +461,14 @@ public:
         return findBusById(id);
     }
 
-    Driver *findDriver(int id) {
-        if (id < 1 || id > driverCount) {
-            return nullptr;
+Driver* findDriverByLicense(const string& license) {
+    for (int i = 0; i < driverCount; i++) {
+        if (drivers[i].getLicenseNumber() == license) {
+            return &drivers[i];
         }
-        return &drivers[id - 1];
     }
+    return nullptr;
+}
 
     int addBus(const string &number, int seats) {
     if (number.empty()) {
