@@ -3345,11 +3345,19 @@ else {
         }
         
         int driverId = busManager.addDriver(driverName, license);
-        if (driverId == -1) { 
-            cout << "  No space for more drivers.\n"; 
-            return; 
-        }
-        
+
+if (driverId == -1) {
+    cout << "  No space for more drivers.\n";
+    return;
+}
+else if (driverId == -4) {
+    cout << "  License number already exists.\n";
+    return;
+}
+else if (driverId < 0) {
+    cout << "  Invalid driver name or license.\n";
+    return;
+}
         int busId = askNumber("Bus ID to assign (0 = assign later): ");
         if (busId != 0 && !busManager.assignDriver(driverId, busId)) {
             cout << "  Driver added (ID " << driverId << ") but the bus ID was wrong.\n";
