@@ -698,7 +698,7 @@ public:
 
             int newId = addDriver(driverName, license);
 
-            if (newId != -1)
+            if (newId > 0)
             {
                 drivers[newId - 1].setBus(busId);
             }
