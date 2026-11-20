@@ -546,6 +546,47 @@ Driver* findDriverByLicense(const string& license) {
     int getBusCount() const { 
         return busCount; 
     }
+int getAvailableBusCount() const {
+    int count = 0;
+
+    for (int i = 0; i < busCount; i++) {
+        if (buses[i].getStatus() == AVAILABLE)
+            count++;
+    }
+
+    return count;
+}
+
+int getRunningBusCount() const {
+    int count = 0;
+
+    for (int i = 0; i < busCount; i++) {
+        if (buses[i].getStatus() == RUNNING)
+            count++;
+    }
+
+    return count;
+}
+
+int getMaintenanceBusCount() const {
+    int count = 0;
+
+    for (int i = 0; i < busCount; i++) {
+        if (buses[i].getStatus() == MAINTENANCE)
+            count++;
+    }
+
+    return count;
+}
+
+void displayBusStatusReport() const {
+    cout << "\n========== BUS STATUS REPORT ==========\n";
+    cout << "Total Buses       : " << busCount << "\n";
+    cout << "Available Buses   : " << getAvailableBusCount() << "\n";
+    cout << "Running Buses     : " << getRunningBusCount() << "\n";
+    cout << "Maintenance Buses : " << getMaintenanceBusCount() << "\n";
+    cout << "====================================\n";
+}
 
     void showBus(const Bus &bus, const string &routeText)
     {
