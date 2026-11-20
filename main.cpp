@@ -469,17 +469,28 @@ public:
     }
 
     int addBus(const string &number, int seats) {
-        if (plateTable.get(number) != -1) {
-            return -1;
-        }
-        if (busCount == Max_Buses) {
-            return -2;
-        }
-        buses[busCount] = Bus(busCount + 1, number, seats);
-        busCount++;
-        plateTable.put(number, busCount);
-        return busCount;
+    if (number.empty()) {
+        return -3;
     }
+
+    if (seats <= 0) {
+        return -4;
+    }
+
+    if (plateTable.get(number) != -1) {
+        return -1;
+    }
+
+    if (busCount == Max_Buses) {
+        return -2;
+    }
+
+    buses[busCount] = Bus(busCount + 1, number, seats);
+    busCount++;
+    plateTable.put(number, busCount);
+
+    return busCount;
+}
  int addDriver(const string &driverName, const string &license) 
  {
     for(int i = 0; i < driverCount; i++) {
