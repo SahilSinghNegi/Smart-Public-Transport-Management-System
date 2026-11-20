@@ -460,7 +460,31 @@ public:
         }
         return findBusById(id);
     }
+bool sendBusToMaintenance(int busId) {
+    Bus* bus = findBusById(busId);
 
+    if (bus == nullptr) {
+        return false;
+    }
+
+    bus->setStatus(MAINTENANCE);
+    return true;
+}
+
+bool returnBusFromMaintenance(int busId) {
+    Bus* bus = findBusById(busId);
+
+    if (bus == nullptr) {
+        return false;
+    }
+
+    if (bus->getStatus() != MAINTENANCE) {
+        return false;
+    }
+
+    bus->setStatus(AVAILABLE);
+    return true;
+}
 Driver* findDriverByLicense(const string& license) {
     for (int i = 0; i < driverCount; i++) {
         if (drivers[i].getLicenseNumber() == license) {
