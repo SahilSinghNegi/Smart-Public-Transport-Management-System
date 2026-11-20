@@ -771,6 +771,13 @@ void displayBusStatusReport() const {
             }
         }   
     }
+void displayFleetSummary() {
+    cout << "\n===== BUS FLEET SUMMARY =====\n";
+    cout << "Total Buses: " << busCount << endl;
+    cout << "Total Drivers: " << driverCount << endl;
+    cout << "Available Buses: " << getAvailableBusCount() << endl;
+    cout << "Maintenance Buses: " << getMaintenanceBusCount() << endl;
+}
 };
 
 // MEMBER 2 : ROUTE & NAVIGATION MANAGEMENT
