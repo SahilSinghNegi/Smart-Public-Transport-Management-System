@@ -491,11 +491,19 @@ public:
 
     return busCount;
 }
- int addDriver(const string &driverName, const string &license) 
- {
-    for(int i = 0; i < driverCount; i++) {
+ int addDriver(const string &driverName, const string &license) {
+
+    if (driverName.empty()) {
+        return -2;
+    }
+
+    if (license.empty()) {
+        return -3;
+    }
+
+    for (int i = 0; i < driverCount; i++) {
         if (drivers[i].getLicenseNumber() == license) {
-            return -1;
+            return -4;
         }
     }
 
@@ -503,8 +511,11 @@ public:
         return -1;
     }
 
-    drivers[driverCount] = Driver(driverCount + 1, driverName, license);
+    drivers[driverCount] =
+        Driver(driverCount + 1, driverName, license);
+
     driverCount++;
+
     return driverCount;
 }
     bool assignDriver(int driverId, int busId) {
